@@ -1,0 +1,59 @@
+# ============================================================
+# SourcePoint Library Management System - Requirements
+# All packages are free and open source
+# Run: pip install -r requirements.txt
+# ============================================================
+
+# Core Django Framework
+Django
+
+# Django REST Framework - for API endpoints
+djangorestframework
+
+# Supabase Python Client - free tier available
+supabase
+
+# JWT Authentication
+PyJWT
+djangorestframework-simplejwt
+
+# CORS Headers - for frontend/backend communication
+django-cors-headers
+
+# Environment Variables Management
+python-dotenv
+
+# Groq AI — completely free, no credit card required
+# Get key at: https://console.groq.com
+# Uses requests (already included below) — no extra package needed
+# groq  <-- optional official SDK, but we use requests directly
+
+# Image handling for book covers
+Pillow
+
+# HTTP requests library
+requests
+
+# Django storage for Supabase
+django-storages
+boto3 
+# for S3-compatible Supabase storage
+
+# Whitenoise - serve static files in production (free)
+whitenoise
+
+# Gunicorn - production WSGI server (free)
+gunicorn
+
+# PostgreSQL adapter (Supabase uses PostgreSQL)
+psycopg2-binary
+
+# Django filters - for advanced book filtering
+django-filter
+
+# Slug generation for book URLs
+python-slugify
+
+# Date/time utilities
+python-dateutil
+

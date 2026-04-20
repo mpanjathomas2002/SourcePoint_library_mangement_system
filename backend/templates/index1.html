@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0"/>
+<title>SourcePoint — Digital Library Management System</title>
+<!-- SEO: Update the domain below before deploying -->
+<meta name="description" content="SourcePoint — a free digital library. Browse, borrow, and discover books and study materials powered by AI."/>
+<meta name="keywords" content="digital library,book borrowing,library management,ebooks,study materials,AI library assistant"/>
+<meta name="author" content="SourcePoint Library"/>
+<meta name="robots" content="index,follow"/>
+<link rel="canonical" href="https://yourdomain.com/"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="SourcePoint — Your Digital Library"/>
+<meta property="og:description" content="Borrow books, get AI-powered recommendations, manage your reading. Free for everyone."/>
+<meta property="og:url" content="https://yourdomain.com/"/>
+<meta property="og:site_name" content="SourcePoint"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="SourcePoint — Digital Library"/>
+<meta name="twitter:description" content="Borrow books and get AI-powered reading recommendations."/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Library","name":"SourcePoint Digital Library","description":"A free digital library management system with AI-powered book discovery.","url":"https://yourdomain.com"}</script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/lucide@0.383.0/dist/umd/lucide.min.js"></script>
+<style>
+:root{
+  --forest:#1a2e1a;--forest-mid:#2d4a2d;--forest-light:#3d6b3d;
+  --cream:#f7f3ed;--cream-dark:#ede8e0;--cream-mid:#e0d9ce;
+  --amber:#c8861a;--amber-light:#e8a832;--amber-pale:#fdf3e3;
+  --text:#1a1a1a;--text2:#5a5a5a;--text3:#8a8a8a;
+  --white:#fff;
+  --danger:#c0392b;--danger-bg:#fdf2f1;
+  --ok:#1a6b2d;--ok-bg:#edf7ef;
+  --info:#1a4a7a;--info-bg:#eef4fc;
+  --border:#d4cdc4;--border-l:#eae4dc;
+  --sh1:0 1px 4px rgba(26,46,26,.08);--sh2:0 4px 16px rgba(26,46,26,.12);--sh3:0 8px 32px rgba(26,46,26,.16);
+  --r1:6px;--r2:10px;--r3:16px;--r4:24px;
+  --sw:240px;--th:58px;--dur:.18s;
+}
+*,::before,::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:15px}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--cream);color:var(--text);line-height:1.6;min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased;max-width:100vw}
+h1,h2,h3,h4{font-family:'Playfair Display',Georgia,serif;line-height:1.25}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;border:none;background:none;font-family:inherit;-webkit-tap-highlight-color:transparent}
+input,select,textarea{font-family:inherit;font-size:16px}
+img{max-width:100%;display:block}
+ul{list-style:none}
+
+/* utils */
+.hidden{display:none!important}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:var(--r2);font-size:.875rem;font-weight:500;transition:var(--dur);white-space:nowrap;min-height:40px;cursor:pointer}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.bp{background:var(--forest);color:#fff}.bp:hover{background:var(--forest-mid)}
+.bs{background:var(--cream-dark);color:var(--text);border:1px solid var(--border)}.bs:hover{background:var(--cream-mid)}
+.ba{background:var(--amber);color:#fff}.ba:hover{background:var(--amber-light)}
+.bd{background:var(--danger);color:#fff}.bd:hover{opacity:.88}
+.bg{color:var(--text2);padding:8px 12px;border-radius:var(--r1)}.bg:hover{background:var(--cream-dark);color:var(--text)}
+.bg2{color:var(--tx2);padding:8px 12px;border-radius:var(--r1)}.bg2:hover{background:var(--cd);color:var(--tx)}
+.sm{padding:6px 12px;font-size:.8rem;min-height:34px}
+.lg{padding:13px 28px;font-size:1rem}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:.68rem;font-weight:600;letter-spacing:.03em;text-transform:uppercase}
+.bg-ok{background:var(--ok-bg);color:var(--ok)}
+.bg-no{background:var(--danger-bg);color:var(--danger)}
+.bg-am{background:var(--amber-pale);color:var(--amber)}
+.bg-gy{background:var(--cream-dark);color:var(--text2)}
+.bg-in{background:var(--info-bg);color:var(--info)}
+
+/* card */
+.card{background:var(--white);border:1px solid var(--border-l);border-radius:var(--r3);padding:1.25rem;box-shadow:var(--sh1)}
+
+/* form */
+.ig{display:flex;flex-direction:column;gap:5px;margin-bottom:1rem}
+.ig label{font-size:.82rem;font-weight:500;color:var(--text2)}
+.ig input,.ig select,.ig textarea{padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--r2);font-size:1rem;background:var(--white);color:var(--text);transition:border-color var(--dur),box-shadow var(--dur);width:100%}
+.ig input:focus,.ig select:focus,.ig textarea:focus{outline:none;border-color:var(--forest-light);box-shadow:0 0 0 3px rgba(61,107,61,.15)}
+.err{font-size:.78rem;color:var(--danger);margin-top:3px}
+
+.divider{height:1px;background:var(--border-l);margin:1rem 0}
+
+/* skeleton */
+.sk{background:linear-gradient(90deg,var(--cream-dark) 25%,var(--cream-mid) 50%,var(--cream-dark) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r1)}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+
+/* stars */
+.stars{display:flex;gap:2px}
+.star{color:#d4cdc4;font-size:22px;cursor:pointer;transition:color .1s;user-select:none;-webkit-user-select:none}
+.star.on{color:var(--amber)}
+
+/* toast */
+.tc{position:fixed;bottom:20px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:calc(100vw - 32px)}
+.toast{background:var(--white);border:1px solid var(--border-l);border-radius:var(--r2);padding:12px 16px;box-shadow:var(--sh3);width:320px;max-width:100%;display:flex;align-items:center;gap:10px;font-size:.875rem;animation:tin .25s;pointer-events:all}
+.tok{border-left:4px solid var(--ok)}.ter{border-left:4px solid var(--danger)}.tin{border-left:4px solid var(--amber)}
+@keyframes tin{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* loading */
+#loading{position:fixed;inset:0;background:var(--forest);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10000;transition:opacity .4s}
+.ll{color:var(--cream);font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;letter-spacing:-1px}
+.ll span{color:var(--amber)}
+.lt{color:rgba(247,243,237,.4);font-size:.8rem;margin-top:6px;letter-spacing:.12em;text-transform:uppercase}
+.lsp{width:30px;height:30px;border:3px solid rgba(247,243,237,.15);border-top-color:var(--amber);border-radius:50%;animation:spin .8s linear infinite;margin-top:40px}
+.spin{width:28px;height:28px;border:3px solid rgba(26,46,26,.1);border-top-color:var(--forest);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* auth */
+#auth{min-height:100dvh;display:flex;background:var(--white)}
+.ahero{display:none;flex:1;max-width:460px;background:var(--forest);padding:3rem;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+.ahero::before{content:'';position:absolute;top:-80px;right:-80px;width:320px;height:320px;border-radius:50%;border:60px solid rgba(200,134,26,.1)}
+.ahero::after{content:'';position:absolute;bottom:-50px;left:-60px;width:220px;height:220px;border-radius:50%;border:40px solid rgba(200,134,26,.07)}
+.ahl{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;color:var(--cream);letter-spacing:-1.5px;margin-bottom:.5rem}
+.ahl span{color:var(--amber)}
+.ahero p{color:rgba(247,243,237,.65);line-height:1.75;max-width:340px;margin-bottom:2rem;font-size:.95rem}
+.ahf{display:flex;align-items:center;gap:10px;color:rgba(247,243,237,.8);font-size:.88rem;padding:6px 0}
+.ahf i{color:var(--amber);flex-shrink:0}
+.apanel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;background:var(--cream);min-height:100dvh}
+.aform{width:100%;max-width:400px}
+.alogo{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--forest);text-align:center;margin-bottom:1.75rem}
+.alogo span{color:var(--amber)}
+.apanel h2{font-size:1.6rem;margin-bottom:.3rem;color:var(--forest)}
+.asub{color:var(--text3);font-size:.9rem;margin-bottom:1.75rem}
+.atog{text-align:center;font-size:.88rem;color:var(--text2);margin-top:1.25rem}
+.atog a{color:var(--forest-light);font-weight:600;cursor:pointer}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:.75rem}
+.db{background:var(--white);border:1px solid var(--border);border-radius:var(--r2);padding:8px 10px;font-size:.78rem;font-weight:500;color:var(--text);cursor:pointer;transition:var(--dur);text-align:center;min-height:38px}
+.db:hover{background:var(--cream-dark);border-color:var(--forest-light)}
+.db.fw{grid-column:span 2}
+
+/* app shell */
+#app{display:none;min-height:100dvh}
+#app.on{display:flex}
+.sidebar{width:var(--sw);background:var(--forest);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100dvh;z-index:300;transition:transform .25s ease;will-change:transform}
+.slogo{padding:1.25rem 1.25rem 1rem;font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--cream);letter-spacing:-.5px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.slogo span{color:var(--amber)}
+.snav{flex:1;padding:.75rem;overflow-y:auto;overflow-x:hidden}
+.slabel{font-size:.65rem;font-weight:600;color:rgba(247,243,237,.3);letter-spacing:.12em;text-transform:uppercase;padding:8px 10px 4px;margin-top:8px}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r2);color:rgba(247,243,237,.65);font-size:.875rem;cursor:pointer;transition:background var(--dur),color var(--dur);margin-bottom:2px;min-height:42px;position:relative}
+.ni:hover{background:rgba(255,255,255,.07);color:var(--cream)}
+.ni.on{background:rgba(200,134,26,.18);color:var(--amber-light);font-weight:500}
+.ni.on::before{content:'';position:absolute;left:0;top:25%;bottom:25%;width:3px;background:var(--amber);border-radius:0 3px 3px 0}
+.sfoot{padding:.75rem;border-top:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.suser{display:flex;align-items:center;gap:10px;padding:8px 10px}
+.savatar{width:32px;height:32px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:#fff;flex-shrink:0}
+.sname{font-size:.8rem;font-weight:500;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.srole{font-size:.68rem;color:rgba(247,243,237,.45);text-transform:capitalize}
+.slout{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:var(--r2);color:rgba(247,243,237,.5);font-size:.83rem;cursor:pointer;width:100%;transition:var(--dur);margin-top:4px;min-height:40px}
+.slout:hover{background:rgba(255,255,255,.07);color:rgba(247,243,237,.8)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:299}
+.overlay.on{display:block;animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.main{flex:1;display:flex;flex-direction:column;min-height:100dvh;margin-left:var(--sw);overflow-x:hidden;min-width:0}
+.topbar{height:var(--th);background:var(--white);border-bottom:1px solid var(--border-l);display:flex;align-items:center;padding:0 1.25rem;gap:10px;position:sticky;top:0;z-index:200;flex-shrink:0}
+.hbg{display:none;flex-direction:column;gap:4.5px;padding:8px;border-radius:var(--r1);cursor:pointer;flex-shrink:0;min-width:36px;min-height:36px;align-items:center;justify-content:center}
+.hbg span{width:20px;height:2px;background:var(--text);border-radius:2px;display:block}
+.tbtitle{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--forest);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbsearch{display:flex;align-items:center;background:var(--cream);border:1px solid var(--border);border-radius:var(--r2);padding:6px 12px;gap:8px;min-width:180px;max-width:300px;flex:1}
+.tbsearch input{border:none;background:none;font-size:.875rem;color:var(--text);width:100%;outline:none;min-width:0}
+.aibtn{color:var(--amber);padding:8px;border-radius:var(--r2);min-width:38px;min-height:38px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.aibtn:hover{background:var(--amber-pale)}
+.pcont{flex:1;padding:1.5rem;max-width:1300px;width:100%;overflow-x:hidden;min-width:0}
+
+/* stats */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:.875rem;margin-bottom:1.75rem}
+.scard{background:var(--white);border:1px solid var(--border-l);border-radius:var(--r3);padding:1.1rem 1.25rem}
+.sicon{width:36px;height:36px;border-radius:var(--r1);display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.sicon.g{background:var(--ok-bg);color:var(--ok)}.sicon.a{background:var(--amber-pale);color:var(--amber)}.sicon.b{background:var(--info-bg);color:var(--info)}.sicon.r{background:var(--danger-bg);color:var(--danger)}
+.sval{font-size:1.75rem;font-weight:700;font-family:'Playfair Display',serif;color:var(--forest);line-height:1}
+.slbl{font-size:.73rem;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.04em;margin-top:6px}
+
+/* books grid */
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem}
+.bcard{background:var(--white);border:1px solid var(--border-l);border-radius:var(--r3);overflow:hidden;transition:box-shadow .2s,transform .2s;cursor:pointer;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent}
+.bcard:hover{box-shadow:var(--sh2);transform:translateY(-2px)}
+.bcard:active{transform:scale(.98)}
+.bcov{height:190px;position:relative;overflow:hidden;flex-shrink:0;background:var(--forest);display:flex;align-items:center;justify-content:center}
+.bcov img{width:100%;height:100%;object-fit:cover}
+.bph{padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;height:100%}
+.bph .bt{font-family:'Playfair Display',serif;font-size:.82rem;color:var(--cream);text-align:center;line-height:1.3;font-weight:700}
+.bph .ba2{font-size:.7rem;color:rgba(247,243,237,.55);text-align:center}
+.bbadge{position:absolute;top:7px;right:7px}
+.bbody{padding:.875rem;flex:1;display:flex;flex-direction:column;gap:4px}
+.btitle{font-size:.85rem;font-weight:600;color:var(--text);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bauth{font-size:.75rem;color:var(--text3)}
+.bfoot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:8px}
+.brat{display:flex;align-items:center;gap:3px;font-size:.77rem;color:var(--amber);font-weight:600}
+.btype{font-size:.68rem;color:var(--text3);background:var(--cream-dark);padding:2px 7px;border-radius:100px}
+
+/* shelf */
+.shlist{display:flex;flex-direction:column;gap:10px}
+.shcard{background:var(--white);border:1px solid var(--border-l);border-radius:var(--r3);display:flex;gap:12px;padding:1rem;align-items:flex-start}
+.shcov{width:54px;height:76px;border-radius:var(--r1);background:var(--forest);overflow:hidden;flex-shrink:0}
+.shcov img{width:100%;height:100%;object-fit:cover}
+.shinfo{flex:1;min-width:0}
+.shtit{font-weight:600;font-size:.9rem;margin-bottom:2px}
+.shaut{font-size:.77rem;color:var(--text3);margin-bottom:8px}
+.shact{display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0}
+.dbar{height:4px;background:var(--cream-mid);border-radius:4px;overflow:hidden;margin-top:8px}
+.dfill{height:100%;border-radius:4px;transition:width .5s}
+.dok{background:var(--ok)}.dwa{background:var(--amber)}.dov{background:var(--danger)}
+
+/* modal */
+.moverlay{position:fixed;inset:0;background:rgba(26,46,26,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(2px);animation:fadeIn .2s}
+.modal{background:var(--white);border-radius:var(--r4);width:100%;max-width:560px;max-height:90dvh;overflow-y:auto;box-shadow:var(--sh3);animation:mup .22s}
+.mlg{max-width:740px}
+.mhd{padding:1.4rem 1.4rem 0;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}
+.mhd h3{font-size:1.25rem;color:var(--forest)}
+.mcl{color:var(--text3);padding:6px;border-radius:var(--r1);min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center}
+.mcl:hover{background:var(--cream);color:var(--text)}
+.mbody{padding:1.1rem 1.4rem}
+.mfoot{padding:.875rem 1.4rem 1.4rem;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--border-l);flex-wrap:wrap}
+@keyframes mup{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+
+/* book detail */
+.bdgrid{display:grid;grid-template-columns:170px 1fr;gap:1.4rem}
+.bdcov{border-radius:var(--r2);overflow:hidden;height:250px;background:var(--forest);display:flex;align-items:center;justify-content:center}
+.bdcov img{width:100%;height:100%;object-fit:cover}
+.bdtit{font-size:1.3rem;color:var(--forest);margin-bottom:4px}
+.bdaut{color:var(--text2);font-size:.88rem;margin-bottom:12px}
+.mpills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.mpill{background:var(--cream-dark);color:var(--text2);padding:3px 9px;border-radius:100px;font-size:.73rem}
+.bdesc{font-size:.875rem;color:var(--text2);line-height:1.7}
+.bctrl{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-l)}
+.brow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.brow input[type=range]{flex:1;height:4px}
+.bdv{font-weight:600;color:var(--forest);min-width:72px;font-size:.875rem}
+
+/* AI chat */
+.aipage{display:flex;flex-direction:column;height:calc(100dvh - var(--th) - 3rem)}
+.aimsg{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:1rem;padding-bottom:.5rem;scroll-behavior:smooth}
+.bub{max-width:80%}
+.bub.u{align-self:flex-end}
+.bub.a{align-self:flex-start}
+.blbl{font-size:.7rem;color:var(--text3);margin-bottom:4px}
+.bub.u .blbl{text-align:right}
+.binn{padding:11px 15px;border-radius:var(--r3);font-size:.875rem;line-height:1.65}
+.bub.u .binn{background:var(--forest);color:var(--cream);border-bottom-right-radius:4px}
+.bub.a .binn{background:var(--white);border:1px solid var(--border-l);color:var(--text);border-bottom-left-radius:4px}
+.bbks{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.airow{display:flex;gap:8px;padding-top:.875rem;border-top:1px solid var(--border-l)}
+.aiinp{flex:1;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--r2);font-size:.9rem;resize:none;min-height:44px;max-height:120px;outline:none;transition:border-color var(--dur);line-height:1.5}
+.aiinp:focus{border-color:var(--forest-light)}
+.td{width:7px;height:7px;border-radius:50%;background:var(--text3);display:inline-block;animation:bl 1.2s ease infinite}
+.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
+@keyframes bl{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+.aiwel{text-align:center;padding:2.5rem 1rem}
+.aiwel h3{font-size:1.3rem;color:var(--forest);margin-bottom:.5rem}
+.aiwel p{color:var(--text3);font-size:.875rem;max-width:340px;margin:0 auto 1.25rem}
+.aichips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center}
+.chip{background:var(--cream-dark);border:1px solid var(--border);border-radius:100px;padding:7px 14px;font-size:.8rem;cursor:pointer;transition:var(--dur)}
+.chip:hover{background:var(--forest);color:var(--cream);border-color:var(--forest)}
+
+/* table — horizontal scroll with visible scrollbar on mobile */
+.tw{
+  overflow-x:auto;
+  overflow-y:visible;
+  border-radius:var(--r3);
+  border:1px solid var(--border-l);
+  -webkit-overflow-scrolling:touch;
+  /* show scrollbar on iOS/mobile so users know it scrolls */
+  scrollbar-width:thin;
+  scrollbar-color:var(--border) transparent;
+}
+.tw::-webkit-scrollbar{height:6px}
+.tw::-webkit-scrollbar-track{background:var(--cream-dark);border-radius:0 0 var(--r3) var(--r3)}
+.tw::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+/* scroll hint gradient — shows on right edge when table overflows */
+.tw-wrap{position:relative}
+.tw-wrap::after{
+  content:'';position:absolute;top:0;right:0;width:32px;height:100%;
+  background:linear-gradient(to right,transparent,rgba(247,243,237,.9));
+  border-radius:0 var(--r3) var(--r3) 0;
+  pointer-events:none;
+  opacity:0;transition:opacity .3s;
+}
+.tw-wrap.has-overflow::after{opacity:1}
+table{width:100%;border-collapse:collapse;background:var(--white);min-width:480px}
+thead th{text-align:left;padding:11px 14px;font-size:.72rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;background:var(--cream);border-bottom:1px solid var(--border-l);white-space:nowrap}
+tbody td{padding:9px 12px;font-size:.83rem;border-bottom:1px solid var(--border-l);vertical-align:middle;max-width:220px;overflow:hidden;text-overflow:ellipsis}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--cream)}
+td:last-child{max-width:none;overflow:visible}
+
+/* filters — prevent overflow on narrow screens */
+.fbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.25rem;align-items:center;width:100%;box-sizing:border-box}
+.fsel{
+  padding:8px 10px;border:1px solid var(--border);border-radius:var(--r2);
+  font-size:.85rem;background:var(--white);color:var(--text);
+  outline:none;cursor:pointer;min-height:38px;
+  max-width:100%;min-width:0;box-sizing:border-box;
+  /* force select to never be wider than its container */
+  width:auto;flex:0 1 auto;
+}
+.fsel:focus{border-color:var(--forest-light)}
+.fsrch{
+  display:flex;align-items:center;gap:8px;background:var(--white);
+  border:1px solid var(--border);border-radius:var(--r2);
+  padding:8px 12px;flex:1;
+  /* prevent this from pushing past screen edge */
+  min-width:0;max-width:100%;
+}
+.fsrch input{border:none;background:none;font-size:.875rem;outline:none;width:100%;min-width:0;color:var(--text)}
+
+/* empty */
+.empty{text-align:center;padding:3rem 1.5rem;color:var(--text3)}
+.eico{font-size:2.5rem;margin-bottom:1rem;opacity:.5}
+.empty h3{font-size:1.1rem;margin-bottom:.4rem;color:var(--text2)}
+
+/* profile */
+.phdr{display:flex;align-items:center;gap:1.25rem;margin-bottom:1.75rem;flex-wrap:wrap}
+.pav{width:72px;height:72px;border-radius:50%;background:var(--forest);display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;color:var(--cream);flex-shrink:0}
+.twoc{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+
+/* categories */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
+.ccard{background:var(--white);border:1px solid var(--border-l);border-radius:var(--r3);padding:1rem 1.1rem;display:flex;align-items:center;gap:12px}
+.cico{width:42px;height:42px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex-shrink:0}
+.cname{font-weight:600;font-size:.9rem}
+.ccnt{font-size:.75rem;color:var(--text3)}
+.cdel{margin-left:auto;color:var(--text3);padding:6px;border-radius:var(--r1);min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center}
+.cdel:hover{background:var(--danger-bg);color:var(--danger)}
+
+/* responsive */
+@media(min-width:768px){
+  .ahero{display:flex}
+  .alogo{display:none}
+  .apanel{min-height:unset}
+}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.on{transform:translateX(0);box-shadow:var(--sh3)}
+  .main{margin-left:0}
+  .hbg{display:flex}
+  .tbsearch{display:none}
+  .sgrid{grid-template-columns:repeat(2,1fr)}
+  .bdgrid{grid-template-columns:1fr}
+  .bdcov{height:180px}
+  .twoc{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  :root{--th:52px}
+  .pcont{padding:.875rem}
+  .bgrid{grid-template-columns:repeat(2,1fr);gap:.75rem}
+  .bcov{height:170px}
+  .sgrid{grid-template-columns:repeat(2,1fr);gap:.625rem}
+  .modal{max-width:100%;border-radius:var(--r4) var(--r4) 0 0;margin:0}
+  .moverlay{align-items:flex-end;padding:0}
+  .shact{flex-direction:column}
+  .cgrid{grid-template-columns:1fr 1fr}
+  .bub{max-width:94%}
+  .aipage{height:calc(100dvh - var(--th) - 2rem)}
+
+  /* FILTER BAR: stack vertically, each control full width, no overflow */
+  .fbar{flex-direction:column;align-items:stretch;gap:6px}
+  .fsel{width:100%!important;max-width:100%!important;box-sizing:border-box;font-size:.9rem;display:block}
+  .fsrch{width:100%!important;max-width:100%!important;box-sizing:border-box}
+
+  /* TABLE: ensure wrapper scrolls, not the whole page */
+  .tw{
+    margin-left:-.875rem;
+    margin-right:-.875rem;
+    border-radius:0;
+    border-left:none;
+    border-right:none;
+    /* pull-to-reveal scrollbar on mobile */
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  /* table scroll hint text */
+  .tw-hint{
+    display:block;font-size:.72rem;color:var(--text3);
+    text-align:right;margin-bottom:4px;
+    padding-right:.25rem;
+  }
+
+  /* MODALS: ensure inputs inside don't overflow */
+  .mbody{padding:.875rem 1rem}
+  .mbody input,.mbody select,.mbody textarea{font-size:1rem;max-width:100%}
+  /* Two-col grids inside modal become one column */
+  .mbody [style*="grid-template-columns:1fr 1fr"]{
+    display:flex!important;flex-direction:column!important;
+  }
+  
+  /* Bookshelf cards: action buttons row on mobile */
+  .shcard{flex-wrap:wrap;gap:8px}
+  .shact{flex-direction:row;flex-wrap:wrap;gap:5px;width:100%}
+  
+  /* Category grid: two columns on mobile */
+  .cgrid{grid-template-columns:1fr}
+  
+  /* Profile two-col -> one col */
+  .twoc{grid-template-columns:1fr}
+}
+@media(max-width:380px){
+  .bgrid{grid-template-columns:1fr}
+  .dg{grid-template-columns:1fr}
+  .db.fw{grid-column:span 1}
+  .cgrid{grid-template-columns:1fr}
+  .sgrid{grid-template-columns:repeat(2,1fr)}
+  /* On very small screens, stack shact buttons */
+  .shact{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="ll">Source<span>Point</span></div>
+  <div class="lt">Digital Library</div>
+  <div class="lsp"></div>
+  <div id="load-msg" style="color:rgba(247,243,237,.4);font-size:.78rem;margin-top:24px;max-width:280px;text-align:center;display:none">
+    Taking longer than usual…<br>Make sure the Django server is running.
+  </div>
+  <script>
+    // Show "taking long" message after 2.5s if still loading
+    setTimeout(function(){
+      var m=document.getElementById('load-msg');
+      if(m&&document.getElementById('loading')&&document.getElementById('loading').style.opacity!=='0')
+        m.style.display='block';
+    }, 2500);
+  </script>
+</div>
+
+<div class="tc" id="tc" aria-live="polite"></div>
+
+<!-- AUTH -->
+<div id="auth" class="hidden">
+  <div class="ahero" aria-hidden="true">
+    <div class="ahl">Source<span>Point</span></div>
+    <p>Your intelligent digital library. Discover, borrow, and explore books and study materials powered by AI.</p>
+    <div>
+      <div class="ahf"><i data-lucide="book-open" size="16"></i> Borrow books instantly</div>
+      <div class="ahf"><i data-lucide="sparkles" size="16"></i> AI-powered summaries &amp; recommendations</div>
+      <div class="ahf"><i data-lucide="star" size="16"></i> Rate and review books</div>
+      <div class="ahf"><i data-lucide="shield-check" size="16"></i> Secure role-based access</div>
+    </div>
+  </div>
+  <div class="apanel">
+    <div class="aform">
+      <div class="alogo">Source<span>Point</span></div>
+      <!-- LOGIN -->
+      <div id="lwrap">
+        <h2>Welcome back</h2>
+        <p class="asub">Sign in to your account</p>
+        <div class="ig"><label for="le">Email address</label><input type="email" id="le" autocomplete="email" placeholder="you@example.com"/></div>
+        <div class="ig"><label for="lp">Password</label><input type="password" id="lp" autocomplete="current-password" placeholder="••••••••"/><div class="err hidden" id="lerr"></div></div>
+        <button class="btn bp lg" style="width:100%" id="lbtn" onclick="doLogin()">Sign in</button>
+
+        <div class="atog">No account? <a onclick="showReg()">Create one free</a></div>
+      </div>
+      <!-- REGISTER -->
+      <div id="rwrap" class="hidden">
+        <h2>Create account</h2>
+        <p class="asub">Join SourcePoint — it's free</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="ig"><label>First name</label><input type="text" id="rf" placeholder="James"/></div>
+          <div class="ig"><label>Last name</label><input type="text" id="rl" placeholder="Okonkwo"/></div>
+        </div>
+        <div class="ig"><label>Email *</label><input type="email" id="re" autocomplete="email" placeholder="you@example.com"/></div>
+        <div class="ig"><label>Password *</label><input type="password" id="rp" autocomplete="new-password" placeholder="Min. 8 characters"/></div>
+        <div class="ig"><label>Confirm password *</label><input type="password" id="rp2" placeholder="Repeat password"/><div class="err hidden" id="rerr"></div></div>
+        <button class="btn bp lg" style="width:100%" onclick="doReg()">Create account</button>
+        <div class="atog">Already a member? <a onclick="showLogin()">Sign in</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="overlay" id="ov" onclick="closeSb()"></div>
+  <aside class="sidebar" id="sb">
+    <div class="slogo">Source<span>Point</span></div>
+    <nav class="snav" id="snav"></nav>
+    <div class="sfoot">
+      <div class="suser">
+        <div class="savatar" id="sav"></div>
+        <div><div class="sname" id="snm">…</div><div class="srole" id="srl"></div></div>
+      </div>
+      <button class="slout" onclick="doLogout()"><i data-lucide="log-out" size="16"></i> Sign out</button>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <button class="hbg" onclick="togSb()" aria-label="Menu"><span></span><span></span><span></span></button>
+      <div class="tbtitle" id="ttl">SourcePoint</div>
+      <div class="tbsearch"><i data-lucide="search" size="14" style="color:var(--text3);flex-shrink:0"></i><input type="text" placeholder="Search books…" id="topsrch" oninput="onTopsearch(this.value)" aria-label="Search"/></div>
+      <button class="aibtn" onclick="go('ai')" title="AI Assistant"><i data-lucide="sparkles" size="20"></i></button>
+    </div>
+    <div class="pcont" id="pc"></div>
+  </div>
+</div>
+<div id="mr"></div>
+
+<script>
+'use strict';
+// ── CONFIG ────────────────────────────────────────────────────
+const API='/api/v1';
+// ── STATE ─────────────────────────────────────────────────────
+const S={user:null,tok:null,books:[],cats:[],chat:[],page:null,q:'',fi:{cat:'',type:'',ord:'-created_at'},
+  _cb:null,_cb_t:0,_sb:null,_sb_t:0};
+const TTL=60000;
+
+// ── API CLIENT ─────────────────────────────────────────────────
+const api={
+  async r(path,opt={}){
+    const h={'Content-Type':'application/json',...opt.headers};
+    if(S.tok?.access)h['Authorization']='Bearer '+S.tok.access;
+    let res=await fetch(API+path,{...opt,headers:h}).catch(()=>null);
+    if(!res){console.warn("Network error for:",path);return null;}
+    if(res.status===401&&S.tok?.refresh&&!path.includes('token/refresh')){
+      if(await api.ref()){h['Authorization']='Bearer '+S.tok.access;res=await fetch(API+path,{...opt,headers:h}).catch(()=>null);}
+      else{doLogout();return null;}
+    }
+    return res;
+  },
+  get:p=>api.r(p),
+  post:(p,b)=>api.r(p,{method:'POST',body:JSON.stringify(b)}),
+  put:(p,b)=>api.r(p,{method:'PUT',body:JSON.stringify(b)}),
+  del:p=>api.r(p,{method:'DELETE'}),
+  async ref(){
+    try{const r=await fetch(API+'/auth/token/refresh/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({refresh:S.tok.refresh})});
+      if(r.ok){const d=await r.json();S.tok.access=d.access;_save();return true;}}catch{}return false;
+  },
+  async json(path){const r=await api.get(path);if(!r||!r.ok)return null;const d=await r.json();return d.results!==undefined?d.results:d;}
+};
+
+// ── PERSIST ───────────────────────────────────────────────────
+function _save(){try{localStorage.setItem('sp_t',JSON.stringify(S.tok));localStorage.setItem('sp_u',JSON.stringify(S.user));}catch{}}
+function _load(){try{const t=localStorage.getItem('sp_t'),u=localStorage.getItem('sp_u');if(t)S.tok=JSON.parse(t);if(u)S.user=JSON.parse(u);}catch{}}
+
+// ── AUTH ──────────────────────────────────────────────────────
+async function doLogin(){
+  const e=g('le').value.trim(),p=g('lp').value,err=g('lerr'),btn=g('lbtn');
+  if(!e||!p){serr(err,'Enter email and password.');return;}
+  btn.disabled=true;btn.textContent='Signing in…';
+  try{
+    const r=await fetch(API+'/auth/login/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});
+    const d=await r.json();
+    if(r.ok){S.user=d.user;S.tok=d.tokens;_save();herr(err);boot();}
+    else serr(err,d.non_field_errors?.[0]||d.detail||Object.values(d)[0]?.[0]||'Login failed.');
+  }catch{serr(err,'Cannot reach server. Is the backend running?');}
+  finally{btn.disabled=false;btn.textContent='Sign in';}
+}
+async function doReg(){
+  const email=g('re').value.trim(),pw=g('rp').value,pw2=g('rp2').value,err=g('rerr');
+  if(!email||!pw){serr(err,'Email and password required.');return;}
+  if(pw!==pw2){serr(err,'Passwords do not match.');return;}
+  try{
+    const r=await fetch(API+'/auth/register/',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,password:pw,password_confirm:pw2,first_name:g('rf').value.trim(),last_name:g('rl').value.trim()})});
+    const d=await r.json();
+    if(r.ok){S.user=d.user;S.tok=d.tokens;_save();toast('Welcome to SourcePoint! 🎉','ok');boot();}
+    else serr(err,d.email?.[0]||d.password?.[0]||d.non_field_errors?.[0]||'Registration failed.');
+  }catch{serr(err,'Cannot reach server.');}
+}
+function doLogout(){
+  if(S.tok?.refresh)api.post('/auth/logout/',{refresh_token:S.tok.refresh}).catch(()=>{});
+  S.user=null;S.tok=null;S.chat=[];S._cb=null;S._sb=null;
+  localStorage.removeItem('sp_t');localStorage.removeItem('sp_u');
+  g('app').classList.remove('on');
+  g('auth').classList.remove('hidden');
+  showLogin();
+}
+// fill() removed — demo credentials removed
+function showLogin(){show('lwrap');hide('rwrap');}
+function showReg(){show('rwrap');hide('lwrap');}
+
+// ── BOOT ──────────────────────────────────────────────────────
+async function boot(){
+  try {
+    hide('auth');
+    const app = g('app');
+    if(app) app.classList.add('on');
+
+    // Build navigation and update user display — wrapped safely
+    try { renderNav(); } catch(e){ console.error('renderNav failed:', e); }
+    try { updateUser(); } catch(e){ console.error('updateUser failed:', e); }
+    try { icons(); } catch(e){ console.warn('icons failed:', e); }
+
+    // Load catalog data — if it fails, app still loads (just empty)
+    try { await Promise.all([loadCats(), loadBooks()]); }
+    catch(e){ console.warn('Initial data load failed:', e); }
+
+    // Role-based redirect — no manual role selection needed
+    const role = S.user?.role;
+    go(role === 'superadmin' || role === 'admin' ? 'dashboard' : 'catalog');
+
+  } catch(e) {
+    console.error('boot() crashed:', e);
+    // Last resort: show the app in catalog mode even if boot partially failed
+    const app = g('app');
+    if(app) app.classList.add('on');
+    try { go('catalog'); } catch{}
+  }
+}
+
+// ── ROUTER ────────────────────────────────────────────────────
+const TITLES={catalog:'Browse Catalog',mybooks:'My Bookshelf',ai:'AI Assistant — Sage',
+  profile:'My Profile',dashboard:'Dashboard',books:'Manage Books',
+  categories:'Categories',users:'Users',borrowings:'Borrowings',
+  settings:'Borrow Settings',admins:'Administrators'};
+
+function go(page){
+  try {
+    S.page = page;
+    try { setNav(page); } catch{}
+    const ttl = g('ttl');
+    if(ttl) ttl.textContent = TITLES[page] || 'SourcePoint';
+    try { closeSb(); } catch{}
+
+    // Skeleton placeholder renders instantly
+    const pcEl = g('pc');
+    if(pcEl) pcEl.innerHTML = `<div style="display:flex;flex-direction:column;gap:1rem">
+      <div class="sk" style="height:28px;width:200px"></div>
+      <div class="bgrid">${'<div class="sk" style="height:250px;border-radius:16px"></div>'.repeat(6)}</div>
+    </div>`;
+
+    const R = {
+      catalog:pgCatalog, mybooks:pgMyBooks, ai:pgAI, profile:pgProfile,
+      dashboard:pgDash, books:pgBooks, categories:pgCats,
+      users:pgUsers, borrowings:pgBorrows, settings:pgSettings, admins:pgAdmins
+    };
+
+    // Render after skeleton paints (setTimeout 0 yields to browser)
+    setTimeout(() => {
+      try {
+        (R[page] || pgCatalog)();
+      } catch(e) {
+        console.error('Page render failed [' + page + ']:', e);
+        const pcEl2 = g('pc');
+        if(pcEl2) pcEl2.innerHTML = `<div class="empty">
+          <div class="eico">⚠️</div>
+          <h3>Page could not load</h3>
+          <p style="font-size:.85rem;color:var(--text3);margin-top:4px">${e.message || 'Unknown error'}</p>
+          <button class="btn bp" style="margin-top:1rem" onclick="go('catalog')">Back to Catalog</button>
+        </div>`;
+      }
+    }, 0);
+
+  } catch(e){
+    console.error('go() crashed:', e);
+  }
+}
+
+
+function pc(html){
+  try {
+    const el = g('pc');
+    if(el) el.innerHTML = html;
+  } catch(e){ console.error('pc() innerHTML failed:', e); }
+  try { icons(); } catch{}
+  try { addTableScrollHints(); } catch{}
+}
+
+// ── SIDEBAR ───────────────────────────────────────────────────
+const NAV={
+  user:[{id:'catalog',ic:'library-big',lb:'Browse Catalog'},{id:'mybooks',ic:'book-marked',lb:'My Bookshelf'},{id:'ai',ic:'sparkles',lb:'AI Assistant'},{id:'profile',ic:'user',lb:'My Profile'}],
+  admin:[{s:'Library'},{id:'dashboard',ic:'layout-dashboard',lb:'Dashboard'},{id:'catalog',ic:'library-big',lb:'Browse Catalog'},{id:'books',ic:'book',lb:'Manage Books'},{id:'categories',ic:'tags',lb:'Categories'},{s:'People'},{id:'users',ic:'users',lb:'Users'},{id:'borrowings',ic:'clipboard-list',lb:'Borrowings'},{s:'Config'},{id:'settings',ic:'settings',lb:'Settings'},{id:'ai',ic:'sparkles',lb:'AI Assistant'},{id:'profile',ic:'user',lb:'My Profile'}],
+  superadmin:[{s:'Library'},{id:'dashboard',ic:'layout-dashboard',lb:'Dashboard'},{id:'catalog',ic:'library-big',lb:'Browse Catalog'},{id:'books',ic:'book',lb:'Manage Books'},{id:'categories',ic:'tags',lb:'Categories'},{s:'People'},{id:'users',ic:'users',lb:'All Users'},{id:'admins',ic:'shield',lb:'Administrators'},{id:'borrowings',ic:'clipboard-list',lb:'Borrowings'},{s:'Config'},{id:'settings',ic:'settings',lb:'Settings'},{id:'ai',ic:'sparkles',lb:'AI Assistant'},{id:'profile',ic:'user',lb:'My Profile'}]
+};
+function renderNav(){
+  const items=NAV[S.user?.role]||NAV.user;
+  g('snav').innerHTML=items.map(i=>i.s?`<div class="slabel">${i.s}</div>`
+    :`<div class="ni" id="ni_${i.id}" onclick="go('${i.id}')" role="button" tabindex="0"><i data-lucide="${i.ic}" size="17" style="flex-shrink:0"></i><span>${i.lb}</span></div>`).join('');
+}
+function setNav(id){document.querySelectorAll('.ni').forEach(e=>e.classList.remove('on'));const e=g('ni_'+id);if(e)e.classList.add('on');}
+function updateUser(){
+  const u=S.user;if(!u)return;
+  const nm=[u.first_name,u.last_name].filter(Boolean).join(' ')||u.email.split('@')[0];
+  const in2=(u.first_name?.[0]||u.email[0]).toUpperCase()+(u.last_name?.[0]||'').toUpperCase();
+  g('sav').textContent=in2;g('snm').textContent=nm;
+  g('srl').textContent=u.role==='superadmin'?'Super Admin':u.role==='admin'?'Administrator':'Member';
+}
+function togSb(){g('sb').classList.toggle('on');g('ov').classList.toggle('on');}
+function closeSb(){g('sb').classList.remove('on');g('ov').classList.remove('on');}
+
+// ── DATA ──────────────────────────────────────────────────────
+async function loadCats(force=false){
+  if(!force&&S._sb&&Date.now()-S._sb_t<TTL)return;
+  const d=await api.json('/library/categories/');
+  if(d){S.cats=d;S._sb=d;S._sb_t=Date.now();}
+}
+async function loadBooks(qs='',force=false){
+  if(!qs&&!force&&S._cb&&Date.now()-S._cb_t<TTL){S.books=S._cb;return;}
+  const d=await api.json('/library/books/?page_size=60'+(qs?'&'+qs:''));
+  if(d){S.books=Array.isArray(d)?d:d;if(!qs){S._cb=S.books;S._cb_t=Date.now();}}
+}
+function booksQS(){
+  const p=new URLSearchParams();
+  if(S.fi.cat)p.set('category',S.fi.cat);
+  if(S.fi.type)p.set('material_type',S.fi.type);
+  if(S.fi.ord)p.set('ordering',S.fi.ord);
+  if(S.q)p.set('search',S.q);
+  return p.toString();
+}
+
+// ── CATALOG ───────────────────────────────────────────────────
+async function pgCatalog(){
+  renderCatalog();
+  await loadBooks(booksQS());
+  renderCatalog();
+}
+function renderCatalog(){
+  const co=S.cats.map(c=>`<option value="${c.slug}" ${S.fi.cat===c.slug?'selected':''}>${x(c.name)}</option>`).join('');
+  pc(`
+    <div class="fsrch" style="margin-bottom:1rem"><i data-lucide="search" size="15" style="color:var(--text3);flex-shrink:0"></i>
+      <input type="text" placeholder="Search by title, author, ISBN…" value="${x(S.q)}" oninput="S.q=this.value;deb(()=>loadBooks(booksQS()).then(renderCatalog),380)()" /></div>
+    <div class="fbar">
+      <select class="fsel" onchange="S.fi.cat=this.value;pgCatalog()"><option value="">All Categories</option>${co}</select>
+      <select class="fsel" onchange="S.fi.type=this.value;pgCatalog()">
+        <option value="">All Types</option>
+        <option value="book" ${S.fi.type==='book'?'selected':''}>Book</option>
+        <option value="textbook" ${S.fi.type==='textbook'?'selected':''}>Textbook</option>
+        <option value="ebook" ${S.fi.type==='ebook'?'selected':''}>E-Book</option>
+        <option value="journal" ${S.fi.type==='journal'?'selected':''}>Journal</option>
+        <option value="research_paper" ${S.fi.type==='research_paper'?'selected':''}>Research Paper</option>
+      </select>
+      <select class="fsel" onchange="S.fi.ord=this.value;pgCatalog()">
+        <option value="-created_at" ${S.fi.ord==='-created_at'?'selected':''}>Newest</option>
+        <option value="-average_rating" ${S.fi.ord==='-average_rating'?'selected':''}>Top Rated</option>
+        <option value="-borrow_count" ${S.fi.ord==='-borrow_count'?'selected':''}>Most Popular</option>
+        <option value="title" ${S.fi.ord==='title'?'selected':''}>Title A–Z</option>
+        <option value="author" ${S.fi.ord==='author'?'selected':''}>Author A–Z</option>
+      </select>
+      <span style="font-size:.8rem;color:var(--text3);white-space:nowrap">${S.books.length} books</span>
+    </div>
+    ${S.books.length===0?`<div class="empty"><div class="eico">📚</div><h3>No books found</h3><p>Try different search terms or filters.</p></div>`
+      :`<div class="bgrid">${S.books.map(bc).join('')}</div>`}
+  `);
+}
+function bc(b){
+  const col=cc(b.categories?.[0]);const ib=b.is_borrowed_by_user;
+  const cv=b.cover_url?`<img src="${x(b.cover_url)}" alt="${x(b.title)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="bph" style="display:none"><div class="bt">${x(b.title)}</div><div class="ba2">${x(b.author)}</div></div>`
+    :`<div class="bph"><div class="bt">${x(b.title)}</div><div class="ba2">${x(b.author)}</div></div>`;
+  return `<div class="bcard" onclick="openBk('${b.id}')" role="button" tabindex="0">
+    <div class="bcov" style="background:${col}">${cv}<div class="bbadge">${ib?'<span class="badge bg-ok">Borrowed</span>':''}</div></div>
+    <div class="bbody"><div class="btitle">${x(b.title)}</div><div class="bauth">${x(b.author)}</div>
+    <div class="bfoot"><div class="brat"><i data-lucide="star" size="12" style="fill:currentColor"></i>${b.average_rating>0?b.average_rating.toFixed(1):'N/A'}</div>
+    <span class="btype">${(b.material_type||'book').replace('_',' ')}</span></div></div></div>`;
+}
+
+// ── BOOK DETAIL MODAL ─────────────────────────────────────────
+async function openBk(id){
+  showModal('<div style="padding:2.5rem;text-align:center"><div class="spin" style="margin:0 auto"></div><p style="margin-top:12px;font-size:.83rem;color:var(--tx3)">Loading book details…</p></div>');
+  const r=await api.get('/library/books/'+id+'/');
+  if(!r||!r.ok){closeModal();toast('Failed to load book.','er');return;}
+  renderBkModal(await r.json());
+}
+function renderBkModal(b){
+  const col=cc(b.categories?.[0]);const ib=b.is_borrowed_by_user;const mx=b.effective_max_borrow_days||30;
+  const ur=b.user_rating?.score||0;
+  const cv=b.cover_url?`<img src="${x(b.cover_url)}" alt="${x(b.title)}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=padding:12px><div style=color:#f7f3ed;font-family:Playfair Display,serif;font-size:1rem;text-align:center>${x(b.title)}</div></div>'" />`
+    :`<div style="padding:12px;width:100%;text-align:center;color:#f7f3ed;font-family:'Playfair Display',serif;font-size:1rem">${x(b.title)}</div>`;
+  const stars=[1,2,3,4,5].map(i=>`<span class="star ${i<=ur?'on':''}" onclick="rateBk('${b.id}',${i})" onmouseover="hvStars(this.parentElement,${i})" onmouseout="rsStars(this.parentElement,${ur})">★</span>`).join('');
+  const revs=(b.recent_ratings||[]).map(r=>`<div style="border-top:1px solid var(--border-l);padding:10px 0"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-weight:500;font-size:.85rem">${x(r.user_name)}</span><span style="color:var(--amber);font-size:13px">${'★'.repeat(r.score)}${'☆'.repeat(5-r.score)}</span></div>${r.review?`<p style="font-size:.82rem;color:var(--text2)">${x(r.review)}</p>`:''}<div style="font-size:.72rem;color:var(--text3)">${r.date}</div></div>`).join('');
+  showModal(`
+    <div class="mhd"><h3 style="opacity:0">.</h3><button class="mcl" onclick="closeModal()"><i data-lucide="x" size="17"></i></button></div>
+    <div class="mbody">
+      <div class="bdgrid">
+        <div>
+          <div class="bdcov" style="background:${col}">${cv}</div>
+          <div style="text-align:center;margin-top:12px">
+            <div style="font-size:.75rem;color:var(--text3);margin-bottom:6px">Your rating</div>
+            <div class="stars" style="justify-content:center">${stars}</div>
+            ${ur?`<div style="font-size:.72rem;color:var(--ok);margin-top:4px">Rated ${ur}/5</div>`:''}
+          </div>
+        </div>
+        <div>
+          <h2 class="bdtit">${x(b.title)}</h2>
+          <div class="bdaut">by ${x(b.author)}</div>
+          <div class="mpills">${(b.categories||[]).map(c=>`<span class="mpill">${x(c.name)}</span>`).join('')}${b.publication_year?`<span class="mpill">${b.publication_year}</span>`:''}${b.pages?`<span class="mpill">${b.pages}p</span>`:''}<span class="mpill">${x(b.language||'English')}</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span style="color:var(--amber)">${'★'.repeat(Math.round(b.average_rating))}${'☆'.repeat(5-Math.round(b.average_rating))}</span>
+            <strong>${b.average_rating.toFixed(1)}</strong><span style="font-size:.78rem;color:var(--text3)">(${b.rating_count} reviews)</span>
+          </div>
+          <p class="bdesc">${x(b.description||'No description available.')}</p>
+          <div class="bctrl">
+            ${(()=>{
+              const isAdm=S.user&&(S.user.role==='admin'||S.user.role==='superadmin');
+              const hasFile=!!(b.book_file_url||b.file_url);
+              if(ib){
+                // User has borrowed this book
+                return `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+                  <span class="badge bg-ok">✓ In your library</span>
+                  ${hasFile?`<button class="btn bp sm" onclick="readBook('${b.id}','${x(b.title)}')"><i data-lucide="book-open" size="13"></i> Read</button>`:''}
+                  <button class="btn bs sm" onclick="retBk('${b.id}','${x(b.title)}')">Return</button>
+                  <button class="btn ba sm" onclick="aiSum('${b.id}','${x(b.title)}')"><i data-lucide="sparkles" size="13"></i> AI</button>
+                </div>`;
+              }
+              if(isAdm&&hasFile){
+                // Admin can read without borrowing
+                return `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+                  <span class="badge bg-in">Admin Access</span>
+                  <button class="btn bp sm" onclick="readBook('${b.id}','${x(b.title)}')"><i data-lucide="book-open" size="13"></i> Read Book</button>
+                  <button class="btn ba sm" onclick="aiSum('${b.id}','${x(b.title)}')"><i data-lucide="sparkles" size="13"></i> AI Summary</button>
+                </div>`;
+              }
+              if(b.is_available){
+                return `<div>
+              <div style="font-size:.8rem;color:var(--text3);margin-bottom:6px">Borrow for: <strong id="dlbl">14 days</strong> <span style="color:var(--text3)">(max ${mx})</span></div>
+              <div class="brow"><input type="range" min="1" max="${mx}" value="14" id="dslide" oninput="g('dlbl').textContent=this.value+' days'"/></div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
+                <button class="btn bp" onclick="borBk('${b.id}','${x(b.title)}')"><i data-lucide="book-plus" size="16"></i> Add to My Library</button>
+                <button class="btn bs sm" onclick="aiSum('${b.id}','${x(b.title)}')"><i data-lucide="sparkles" size="13"></i> AI Summary</button>
+              </div></div>`:`<span class="badge bg-gy">Currently unavailable</span>`;
+              }
+            })()}
+          </div>
+        </div>
+      </div>
+      ${revs?`<div style="margin-top:1.5rem"><h4 style="font-size:.95rem;margin-bottom:4px;color:var(--forest)">Reviews</h4>${revs}</div>`:''}
+    </div>`,true);
+}
+async function borBk(bid,title){
+  const days=parseInt(g('dslide')?.value||14);
+  const r=await api.post('/library/borrow/',{book_id:bid,requested_days:days});
+  if(!r){toast('Network error.','er');return;}
+  const d=await r.json();
+  if(r.ok){toast(`"${title}" added to your library!`,'ok');closeModal();S._cb=null;await loadBooks();}
+  else toast(d.book_id?.[0]||d.detail||d.non_field_errors?.[0]||'Could not borrow book.','er');
+}
+async function retBk(bid,title){
+  const bs=await api.json('/library/my-books/?status=active');
+  const bw=(bs||[]).find(b=>b.book?.id===bid);
+  if(!bw){toast('Borrowing record not found.','er');return;}
+  const r=await api.post('/library/borrow/'+bw.id+'/return/',{});
+  if(r.ok){toast(`"${title}" returned.`,'ok');closeModal();S._cb=null;}
+  else toast('Could not return book.','er');
+}
+async function rateBk(bid,score){
+  const r=await api.post('/library/books/'+bid+'/rate/',{book:bid,score});
+  if(r.ok){toast(`Rated ${score}/5 ⭐`,'ok');document.querySelectorAll('.stars .star').forEach((s,i)=>{s.className=`star ${i<score?'on':''}`;});}
+  else toast('Rating failed.','er');
+}
+function aiSum(id,title){closeModal();go('ai');setTimeout(()=>sendAI(`Please give me a summary of the book "${title}"`),350);}
+
+// ── MY BOOKSHELF ──────────────────────────────────────────────
+async function pgMyBooks(){
+  const[act,all]=await Promise.all([api.json('/library/my-books/?status=active'),api.json('/library/my-books/')]);
+  const active=act||[];const ret=(all||[]).filter(b=>b.status==='returned');
+  pc(`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px">
+    <div><h2 style="font-size:1.4rem;color:var(--forest)">My Library</h2><p style="color:var(--text3);font-size:.85rem">${active.length} book${active.length!==1?'s':''} borrowed</p></div>
+    <button class="btn bs" onclick="go('catalog')"><i data-lucide="plus" size="16"></i> Browse More</button>
+  </div>
+  ${active.length===0?`<div class="empty"><div class="eico">📚</div><h3>Your library is empty</h3><p>Browse the catalog to borrow your first book.</p><button class="btn bp" style="margin-top:1rem" onclick="go('catalog')">Browse Books</button></div>`
+    :`<div class="shlist">${active.map(shCard).join('')}</div>`}
+  ${ret.length?`<div style="margin-top:2rem"><h3 style="font-size:1rem;color:var(--text2);margin-bottom:1rem">Reading History</h3>
+    <div class="tw"><table><thead><tr><th>Book</th><th>Borrowed</th><th>Returned</th><th>Action</th></tr></thead>
+    <tbody>${ret.map(b=>`<tr><td><strong style="font-size:.85rem">${x(b.book?.title)}</strong><div style="font-size:.75rem;color:var(--text3)">${x(b.book?.author)}</div></td><td style="font-size:.82rem;color:var(--text3)">${fd(b.borrowed_at)}</td><td style="font-size:.82rem;color:var(--text3)">${fd(b.returned_at)}</td><td><button class="btn bg sm" onclick="openBk('${b.book?.id}')">Rate</button></td></tr>`).join('')}</tbody></table></div></div>`:''}
+  `);
+}
+function shCard(bw){
+  const bk=bw.book;const dl=bw.days_remaining;const mx=bw.requested_days||14;
+  const pct=Math.max(0,Math.min(100,((dl||0)/mx)*100));
+  const cls=bw.is_overdue?'dov':(dl||0)<3?'dwa':'dok';
+  const sb=bw.is_overdue?'<span class="badge bg-no">Overdue</span>':(dl||0)<3?'<span class="badge bg-am">Due soon</span>':`<span class="badge bg-ok">${dl}d left</span>`;
+  const col=cc(bk?.categories?.[0]);
+  return `<div class="shcard"><div class="shcov" style="background:${col}">${bk?.cover_url?`<img src="${x(bk.cover_url)}" alt="${x(bk.title)}" loading="lazy" />`:''}</div>
+    <div class="shinfo"><div class="shtit">${x(bk?.title)}</div><div class="shaut">${x(bk?.author)}</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${sb}<span style="font-size:.75rem;color:var(--text3)">Due ${fd(bw.due_date)}</span></div>
+    <div class="dbar"><div class="dfill ${cls}" style="width:${pct}%"></div></div></div>
+    <div class="shact">
+      ${bk?.book_file_url?`<button class="btn bp sm" onclick="readBook('${bk.id}','${x(bk.title)}')"><i data-lucide="book-open" size="13"></i> Read</button>`:''}
+      <button class="btn bg sm" onclick="openBk('${bk?.id}')">Details</button>
+      <button class="btn bs sm" onclick="retBk('${bk?.id}','${x(bk?.title)}')">Return</button>
+      <button class="btn bg sm" style="color:var(--amber)" onclick="aiSum('${bk?.id}','${x(bk?.title)}')"><i data-lucide="sparkles" size="13"></i></button>
+    </div>
+  </div>`;
+}
+
+// ── AI CHAT ───────────────────────────────────────────────────
+function pgAI(){
+  pc(`<div class="aipage"><div class="aimsg" id="aim">${S.chat.length===0?aiWel():S.chat.map(bub).join('')}</div>
+    <div class="airow"><textarea class="aiinp" id="aiin" rows="1" placeholder="Ask about books, get summaries, recommendations…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAI();}"></textarea>
+    <button class="btn bp" onclick="sendAI()"><i data-lucide="send" size="16"></i></button></div></div>`);
+  scrAI();
+}
+function aiWel(){
+  const chips=[
+    'Find books on African history','Summarize Things Fall Apart',
+    'Recommend programming books','Most popular books',
+    'Philosophy for beginners','Books similar to Sapiens',
+    'What can I borrow today?','Best study materials'
+  ];
+  return `<div class="aiwel">
+    <div style="font-size:2.5rem;margin-bottom:.875rem">✨</div>
+    <h3>Meet Sage — Your AI Librarian</h3>
+    <p>Powered by Groq AI (free). Ask me to find books, summarize titles, recommend reads, or answer any question about the catalog.</p>
+    <div class="aichips">${chips.map(c=>`<div class="chip" onclick="sendAI('${c}')">${c}</div>`).join('')}</div>
+  </div>`;}
+function bub(m){
+  const u=m.role==='user';
+  return `<div class="bub ${u?'u':'a'}"><div class="blbl">${u?'You':'✨ Sage'}</div>
+    <div class="binn">${(m.content||'').replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div>
+    ${!u&&m.books?.length?`<div class="bbks">${m.books.slice(0,3).map(b=>`<button class="btn bs sm" onclick="openBk('${b.id}')">${x(b.title)}</button>`).join('')}</div>`:''}</div>`;
+}
+async function sendAI(txt){
+  const inp=g('aiin');const msg=txt||(inp?inp.value.trim():'');
+  if(!msg)return;if(inp){inp.value='';inp.style.height='auto';}
+  S.chat.push({role:'user',content:msg});
+  const ae=g('aim');
+  if(ae)ae.innerHTML=S.chat.map(bub).join('')+`<div class="bub a"><div class="blbl">✨ Sage</div><div class="binn"><div style="display:flex;gap:5px;align-items:center"><div class="td"></div><div class="td"></div><div class="td"></div></div></div></div>`;
+  scrAI();
+  try{
+    const r=await api.post('/ai/chat/',{message:msg,history:S.chat.slice(-6).map(m=>({role:m.role,content:m.content}))});
+    const d=r?await r.json():null;
+    const reply=d?.reply||'I had trouble responding. Please try again.';
+    const isNotConfigured=reply.includes('GEMINI_API_KEY')||d?.error?.includes('GEMINI_API_KEY');
+    S.chat.push({role:'assistant',content:isNotConfigured?'AI not configured. Add your free GEMINI_API_KEY to .env (get one at aistudio.google.com/app/apikey)':reply,books:d?.books||[]});
+  }catch{S.chat.push({role:'assistant',content:'Connection error. Please check your network.'});}
+  const ae2=g('aim');if(ae2)ae2.innerHTML=S.chat.map(bub).join('');
+  icons();scrAI();
+}
+function scrAI(){setTimeout(()=>{const e=g('aim');if(e)e.scrollTop=e.scrollHeight;},60);}
+
+// ── PROFILE ───────────────────────────────────────────────────
+async function pgProfile(){
+  const u=S.user;
+  const in2=(u.first_name?.[0]||u.email[0]).toUpperCase()+(u.last_name?.[0]||'').toUpperCase();
+  pc(`<div class="phdr"><div class="pav">${in2}</div><div><h2 style="font-size:1.4rem;color:var(--forest)">${x([u.first_name,u.last_name].filter(Boolean).join(' ')||u.email)}</h2><div style="color:var(--text3);font-size:.85rem">${x(u.email)}</div><span class="badge ${u.role==='superadmin'?'bg-am':u.role==='admin'?'bg-in':'bg-ok'}" style="margin-top:6px">${u.role==='superadmin'?'Super Admin':u.role==='admin'?'Administrator':'Member'}</span></div></div>
+  <div class="twoc">
+    <div class="card"><h3 style="font-size:1rem;color:var(--forest);margin-bottom:1rem">Update Profile</h3>
+      <div class="ig"><label>First Name</label><input type="text" id="pf" value="${x(u.first_name||'')}"/></div>
+      <div class="ig"><label>Last Name</label><input type="text" id="pl" value="${x(u.last_name||'')}"/></div>
+      <div class="ig"><label>Email (read-only)</label><input type="email" value="${x(u.email)}" disabled style="opacity:.55"/></div>
+      <div class="ig"><label>Bio</label><textarea id="pb" rows="3">${x(u.bio||'')}</textarea></div>
+      <button class="btn bp" onclick="savePro()"><i data-lucide="save" size="15"></i> Save Changes</button>
+    </div>
+    <div class="card"><h3 style="font-size:1rem;color:var(--forest);margin-bottom:1rem">Account Info</h3>
+      <div style="font-size:.85rem;color:var(--text2)">
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-l)"><span>Member since</span><strong>${fd(u.date_joined)}</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0"><span>Role</span><strong style="text-transform:capitalize">${u.role}</strong></div>
+      </div>
+      ${u.role!=='superadmin'?`<div class="divider"></div><h4 style="font-size:.88rem;color:var(--danger);margin-bottom:8px">Danger Zone</h4><p style="font-size:.82rem;color:var(--text3);margin-bottom:10px">Delete your account permanently.</p><button class="btn bd sm" onclick="confDel()">Delete My Account</button>`:''}
+    </div>
+  </div>`);
+}
+async function savePro(){
+  const r=await api.put('/auth/profile/',{first_name:g('pf').value,last_name:g('pl').value,bio:g('pb').value});
+  const d=await r.json();
+  if(r.ok){S.user={...S.user,...d.user};_save();updateUser();toast('Profile saved!','ok');}else toast('Update failed.','er');
+}
+function confDel(){showModal(`<div class="mhd"><h3 style="color:var(--danger)">Delete Account</h3><button class="mcl" onclick="closeModal()"><i data-lucide="x" size="17"></i></button></div><div class="mbody"><p style="margin-bottom:1.25rem">Are you sure? All your data will be lost. This cannot be undone.</p><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn bs" onclick="closeModal()">Cancel</button><button class="btn bd" onclick="delAcct()">Yes, Delete My Account</button></div></div>`);}
+async function delAcct(){const r=await api.del('/auth/account/delete/');if(r.ok){toast('Account deleted. Goodbye! 👋','ok');setTimeout(doLogout,1500);}else toast('Could not delete.','er');closeModal();}
+
+// ── ADMIN DASHBOARD ───────────────────────────────────────────
+async function pgDash(){
+  const st=await api.json('/library/admin/stats/')||{};
+  pc(`<div style="margin-bottom:1.5rem"><h2 style="font-size:1.4rem;color:var(--forest)">Good ${gr()}, ${x(S.user.first_name||'Admin')}</h2><p style="color:var(--text3);font-size:.87rem">Library overview for today.</p></div>
+  <div class="sgrid">
+    ${sc('g','library-big',st.total_books??'—','Books Available')}
+    ${sc('b','users',st.total_users??'—','Active Members')}
+    ${sc('a','bookmark',st.active_borrowings??'—','Active Borrows')}
+    ${sc('r','alert-triangle',st.overdue_borrowings??'—','Overdue')}
+    ${sc('g','tags',st.total_categories??'—','Categories')}
+    ${sc('r','ban',st.suspended_users??'—','Suspended')}
+  </div>
+  <div class="card" style="margin-bottom:1.5rem"><h3 style="font-size:.95rem;margin-bottom:1rem;color:var(--forest)">Quick Actions</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      <button class="btn bp" onclick="showAddBook()"><i data-lucide="plus" size="16"></i> Add Book</button>
+      <button class="btn bs" onclick="go('users')"><i data-lucide="users" size="16"></i> Manage Users</button>
+      <button class="btn bs" onclick="go('borrowings')"><i data-lucide="clipboard-list" size="16"></i> Borrowings</button>
+      <button class="btn ba" style="margin-left:auto" onclick="clearMock()"><i data-lucide="trash-2" size="16"></i> Clear Mock Data</button>
+    </div>
+  </div>
+  <h3 style="font-size:1rem;color:var(--forest);margin-bottom:1rem">Featured Books</h3>
+  <div class="bgrid">${S.books.slice(0,6).map(bc).join('')}</div>`);
+}
+function sc(cl,ic,val,lbl){return `<div class="scard"><div class="sicon ${cl}"><i data-lucide="${ic}" size="18"></i></div><div class="sval">${val}</div><div class="slbl">${lbl}</div></div>`;}
+
+// ── ADMIN: BOOKS ──────────────────────────────────────────────
+async function pgBooks(){
+  const bks=await api.json('/library/admin/books/?ordering=-created_at&page_size=100')||[];
+  pc(`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px">
+    <h2 style="font-size:1.4rem;color:var(--forest)">Manage Books</h2>
+    <button class="btn bp" onclick="showAddBook()"><i data-lucide="plus" size="16"></i> Add Book</button>
+  </div>
+  <div class="tw"><table><thead><tr><th>Book</th><th>Categories</th><th>Type</th><th>Rating</th><th>Borrows</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>${bks.map(b=>`<tr>
+    <td><div style="font-weight:500;font-size:.87rem;max-width:200px">${x(b.title)}</div><div style="font-size:.75rem;color:var(--text3)">${x(b.author)}</div></td>
+    <td style="font-size:.78rem;max-width:140px">${(b.categories||[]).map(c=>c.name).join(', ')||'—'}</td>
+    <td><span class="badge bg-gy" style="font-size:.68rem">${(b.material_type||'').replace('_',' ')}</span></td>
+    <td><span style="color:var(--amber)">★</span> <span style="font-size:.85rem">${(b.average_rating||0).toFixed(1)}</span></td>
+    <td style="font-size:.85rem">${b.borrow_count||0}</td>
+    <td><span class="badge ${b.is_available?'bg-ok':'bg-gy'}">${b.is_available?'Available':'Unavailable'}</span></td>
+    <td><div style="display:flex;gap:4px"><button class="btn bg sm" onclick="openBk('${b.id}')">View</button><button class="btn bg sm" style="color:var(--danger)" onclick="delBk('${b.id}','${x(b.title)}')">Delete</button></div></td>
+  </tr>`).join('')}</tbody></table></div>`);
+}
+function showAddBook(){
+  const co=S.cats.map(c=>`<option value="${c.id}">${x(c.name)}</option>`).join('');
+  showModal(`<div class="mhd"><h3>Add New Book</h3><button class="mcl" onclick="closeModal()"><i data-lucide="x" size="17"></i></button></div>
+  <div class="mbody">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="ig" style="grid-column:span 2"><label>Title *</label><input type="text" id="abt" placeholder="Book title"/></div>
+      <div class="ig"><label>Author *</label><input type="text" id="aba" placeholder="Author name"/></div>
+      <div class="ig"><label>Publisher</label><input type="text" id="abpu"/></div>
+      <div class="ig"><label>Year</label><input type="number" id="aby" placeholder="2024"/></div>
+      <div class="ig"><label>Pages</label><input type="number" id="abpg"/></div>
+      <div class="ig"><label>Type</label>
+        <select id="abty"><option value="book">Book</option><option value="textbook">Textbook</option>
+        <option value="ebook">E-Book</option><option value="journal">Journal</option>
+        <option value="research_paper">Research Paper</option></select>
+      </div>
+      <div class="ig"><label>Language</label><input type="text" id="abla" value="English"/></div>
+      <div class="ig"><label>Max Borrow Days</label><input type="number" id="abmd" placeholder="30 (system default)"/></div>
+      <div class="ig"><label>Copies</label><input type="number" id="abcp" value="3" min="1"/></div>
+    </div>
+    <div class="ig" style="margin-top:6px">
+      <label>Cover Image — Upload from device</label>
+      <input type="file" id="abcov_file" accept="image/*" style="border:1.5px dashed var(--border);border-radius:var(--r2);padding:10px;background:var(--cream);cursor:pointer;width:100%;box-sizing:border-box"/>
+      <div style="text-align:center;font-size:.73rem;color:var(--text3);margin:4px 0">— or paste an image URL —</div>
+      <input type="url" id="abco" placeholder="https://example.com/cover.jpg" style="border:1.5px solid var(--border);border-radius:var(--r2);padding:10px 12px;width:100%;font-size:.875rem;box-sizing:border-box"/>
+    </div>
+    <div class="ig">
+      <label>Book File (PDF / ePub) — Upload from device</label>
+      <input type="file" id="abbook_file" accept=".pdf,.epub,.mobi,.txt,.docx" style="border:1.5px dashed var(--border);border-radius:var(--r2);padding:10px;background:var(--cream);cursor:pointer;width:100%;box-sizing:border-box"/>
+      <div style="font-size:.73rem;color:var(--text3);margin-top:4px">Users read this after borrowing. Uploaded to Supabase storage or local server.</div>
+    </div>
+    <div class="ig">
+      <label>Categories (hold Ctrl/Cmd for multiple)</label>
+      <select id="abca" multiple style="height:80px;width:100%">${co}</select>
+    </div>
+    <div class="ig"><label>Description</label><textarea id="abde" rows="3" placeholder="What is this book about?"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap">
+      <button class="btn bs" onclick="closeModal()">Cancel</button>
+      <button class="btn bp" id="savebookbtn" onclick="subAddBook()"><i data-lucide="save" size="15"></i> Save Book</button>
+    </div>
+  </div>`,true);
+}
+async function subAddBook(){
+  const t=g('abt')?.value.trim(), a=g('aba')?.value.trim();
+  if(!t||!a){toast('Title and author are required.','er');return;}
+
+  const btn=g('savebookbtn');
+  if(btn){btn.disabled=true;btn.innerHTML='<i data-lucide="upload" size="15"></i> Saving…';icons();}
+
+  // Use FormData so we can send files (multipart/form-data)
+  const fd=new FormData();
+  fd.append('title',t);
+  fd.append('author',a);
+  fd.append('publisher',g('abpu')?.value||'');
+  fd.append('publication_year',g('aby')?.value||'');
+  fd.append('pages',g('abpg')?.value||'');
+  fd.append('material_type',g('abty')?.value||'book');
+  fd.append('language',g('abla')?.value||'English');
+  fd.append('cover_image_url',g('abco')?.value||'');
+  fd.append('max_borrow_days',g('abmd')?.value||'');
+  fd.append('total_copies',g('abcp')?.value||'3');
+  fd.append('description',g('abde')?.value||'');
+
+  // Append selected categories
+  const catSel=g('abca');
+  if(catSel){[...catSel.selectedOptions].forEach(o=>fd.append('category_ids',o.value));}
+
+  // Attach cover image file if selected
+  const covFile=g('abcov_file')?.files[0];
+  if(covFile)fd.append('cover_image',covFile);
+
+  // Attach book content file if selected
+  const bookFile=g('abbook_file')?.files[0];
+  if(bookFile)fd.append('book_file',bookFile);
+
+  // Send as multipart — do NOT set Content-Type header (browser sets boundary automatically)
+  const h={};
+  if(S.tok?.access)h['Authorization']='Bearer '+S.tok.access;
+  try{
+    const res=await fetch(API+'/library/books/create/',{method:'POST',headers:h,body:fd});
+    const d=await res.json();
+    if(res.ok){
+      toast(`"${t}" added to the library!`,'ok');
+      closeModal();S._bc=null;await loadBooks('',true);pgBooks();
+    } else {
+      toast(d.error||d.title?.[0]||d.detail||'Failed to save book.','er');
+    }
+  }catch(e){
+    toast('Network error: '+e.message,'er');
+  }finally{
+    if(btn){btn.disabled=false;btn.innerHTML='<i data-lucide="save" size="15"></i> Save Book';icons();}
+  }
+}
+async function delBk(id,title){
+  if(!confirm(`Delete "${title}"?`))return;
+  const r=await api.del('/library/books/'+id+'/');
+  if(r.ok){toast('Deleted.','ok');S._cb=null;await loadBooks();pgBooks();}else toast('Could not delete.','er');
+}
+
+// ── ADMIN: CATEGORIES ─────────────────────────────────────────
+// FIX: uses category.id for delete (was using slug before)
+async function pgCats(){
+  await loadCats(true);
+  pc(`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px">
+    <h2 style="font-size:1.4rem;color:var(--forest)">Categories</h2>
+    <button class="btn bp" onclick="showAddCat()"><i data-lucide="plus" size="16"></i> New Category</button>
+  </div>
+  <div class="cgrid">
+    ${S.cats.length===0?`<div class="empty" style="grid-column:span 4"><div class="eico">🏷️</div><h3>No categories yet</h3><p>Add your first category.</p></div>`
+      :S.cats.map(c=>`<div class="ccard">
+        <div class="cico" style="background:${c.color}22">${c.icon||'📚'}</div>
+        <div style="flex:1;min-width:0"><div class="cname">${x(c.name)}</div><div class="ccnt">${c.book_count} books</div></div>
+        <button class="cdel" onclick="delCat('${c.id}','${x(c.name)}')" title="Delete"><i data-lucide="trash-2" size="14"></i></button>
+      </div>`).join('')}
+  </div>`);
+}
+function showAddCat(){
+  showModal(`<div class="mhd"><h3>New Category</h3><button class="mcl" onclick="closeModal()"><i data-lucide="x" size="17"></i></button></div>
+  <div class="mbody">
+    <div class="ig"><label>Name *</label><input type="text" id="cnn" placeholder="e.g. Science Fiction"/></div>
+    <div class="ig"><label>Icon (emoji)</label><input type="text" id="cni" placeholder="📚" maxlength="4"/></div>
+    <div class="ig"><label>Colour</label><input type="color" id="cnc" value="#3d6b3d" style="height:40px;padding:4px;cursor:pointer"/></div>
+    <div class="ig"><label>Description</label><textarea id="cnd" rows="2"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+      <button class="btn bs" onclick="closeModal()">Cancel</button>
+      <button class="btn bp" onclick="subAddCat()">Add Category</button>
+    </div>
+  </div>`);
+}
+async function subAddCat(){
+  const nm=g('cnn').value.trim();if(!nm){toast('Name required.','er');return;}
+  const r=await api.post('/library/categories/',{name:nm,icon:g('cni').value,color:g('cnc').value,description:g('cnd').value});
+  const d=await r.json();
+  if(r.ok){toast('Category created!','ok');closeModal();S._sb=null;S._cc=null;await loadCats();pgCats();}else toast(d.name?.[0]||'Failed.','er');
+}
+async function delCat(id,name){
+  if(!confirm(`Delete category "${name}"?`))return;
+  const r=await api.del('/library/categories/'+id+'/');
+  if(r.ok){toast('Category deleted.','ok');S._sb=null;await loadCats(true);pgCats();}else toast('Could not delete.','er');
+}
+
+// ── ADMIN: USERS ──────────────────────────────────────────────
+async function pgUsers(){
+  const[us,adms]=await Promise.all([api.json('/auth/users/?role=user&page_size=100'),S.user.role==='superadmin'?api.json('/auth/users/?role=admin&page_size=20'):Promise.resolve([])]);
+  const all=[...(us||[]),...(adms||[])];
+  pc(`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px">
+    <h2 style="font-size:1.4rem;color:var(--forest)">Users</h2>
+    <span style="font-size:.85rem;color:var(--text3)">${all.length} accounts</span>
+  </div>
+  <div class="tw"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Borrowed</th><th>Joined</th><th>Actions</th></tr></thead>
+  <tbody>${all.map(u=>`<tr>
+    <td style="font-weight:500;white-space:nowrap">${x(u.full_name)}</td>
+    <td style="font-size:.8rem;color:var(--text2)">${x(u.email)}</td>
+    <td><span class="badge ${u.role==='admin'?'bg-in':'bg-gy'}">${u.role}</span></td>
+    <td><span class="badge ${u.status==='active'?'bg-ok':u.status==='suspended'?'bg-no':'bg-gy'}">${u.status}</span></td>
+    <td style="font-size:.83rem">${u.borrow_stats?.active||0}</td>
+    <td style="font-size:.8rem;color:var(--text3)">${fd(u.date_joined)}</td>
+    <td><div style="display:flex;gap:4px;flex-wrap:wrap">
+      ${u.status==='active'?`<button class="btn bg sm" style="color:var(--danger)" onclick="suspU('${u.id}','${x(u.full_name)}')">Suspend</button>`:''}
+      ${u.status==='suspended'?`<button class="btn bg sm" style="color:var(--ok)" onclick="unsuspU('${u.id}','${x(u.full_name)}')">Restore</button>`:''}
+      ${S.user.role==='superadmin'?`<button class="btn bg sm" style="color:var(--danger)" onclick="delU('${u.id}','${x(u.full_name)}')">Delete</button>`:''}
+    </div></td>
+  </tr>`).join('')}</tbody></table></div>`);
+}
+async function suspU(id,name){const r=prompt(`Reason for suspending ${name}:`);if(r===null)return;const res=await api.post('/auth/users/'+id+'/suspend/',{reason:r||'Suspended by admin.'});if(res.ok){toast(name+' suspended.','ok');pgUsers();}else toast('Failed.','er');}
+async function unsuspU(id,name){const r=await api.post('/auth/users/'+id+'/unsuspend/',{});if(r.ok){toast(name+' restored.','ok');pgUsers();}else toast('Failed.','er');}
+async function delU(id,name){if(!confirm(`Delete user "${name}"?`))return;const r=await api.del('/auth/users/'+id+'/delete/');if(r.ok){toast(name+' deleted.','ok');pgUsers();}else toast('Failed.','er');}
+
+// ── ADMIN: BORROWINGS ─────────────────────────────────────────
+async function pgBorrows(){
+  const d=await api.json('/library/admin/borrowings/?ordering=-borrowed_at&page_size=100')||[];
+  pc(`<div style="margin-bottom:1.5rem"><h2 style="font-size:1.4rem;color:var(--forest)">All Borrowings</h2></div>
+  <div class="tw"><table><thead><tr><th>User</th><th>Book</th><th>Borrowed</th><th>Due</th><th>Days</th><th>Status</th></tr></thead>
+  <tbody>${d.map(b=>`<tr>
+    <td style="font-size:.83rem">${x(b.user?.email||'')}</td>
+    <td><div style="font-weight:500;font-size:.85rem;max-width:180px">${x(b.book?.title||'')}</div><div style="font-size:.73rem;color:var(--text3)">${x(b.book?.author||'')}</div></td>
+    <td style="font-size:.8rem;color:var(--text3)">${fd(b.borrowed_at)}</td>
+    <td style="font-size:.8rem;color:var(--text3)">${fd(b.due_date)}</td>
+    <td style="font-size:.8rem">${b.requested_days}d</td>
+    <td><span class="badge ${b.status==='active'?'bg-ok':b.status==='overdue'?'bg-no':'bg-gy'}">${b.status}</span></td>
+  </tr>`).join('')}</tbody></table></div>`);
+}
+
+// ── ADMIN: SETTINGS ───────────────────────────────────────────
+async function pgSettings(){
+  const s=await api.json('/library/settings/')||{};
+  pc(`<div style="max-width:520px"><div style="margin-bottom:1.5rem"><h2 style="font-size:1.4rem;color:var(--forest)">Borrow Settings</h2><p style="color:var(--text3);font-size:.87rem">System-wide borrowing configuration.</p></div>
+  <div class="card">
+    <div class="ig"><label>Default Max Borrow Period (days)</label><input type="number" id="smx" value="${s.default_max_days||30}" min="1" max="365"/></div>
+    <div class="ig"><label>Grace Period After Due Date (days)</label><input type="number" id="sgr" value="${s.grace_period_days||3}" min="0" max="30"/></div>
+    <div class="ig"><label>Max Concurrent Borrows Per User</label><input type="number" id="sco" value="${s.max_concurrent_borrows||5}" min="1" max="20"/></div>
+    <button class="btn bp" onclick="saveSet()"><i data-lucide="save" size="15"></i> Save Settings</button>
+  </div></div>`);
+}
+async function saveSet(){
+  const r=await api.put('/library/settings/',{default_max_days:parseInt(g('smx').value),grace_period_days:parseInt(g('sgr').value),max_concurrent_borrows:parseInt(g('sco').value)});
+  if(r.ok)toast('Settings saved!','ok');else toast('Failed.','er');
+}
+
+// ── SUPER ADMIN: ADMINS ───────────────────────────────────────
+async function pgAdmins(){
+  const adms=await api.json('/auth/users/?role=admin&page_size=20')||[];
+  pc(`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px">
+      <div>
+        <h2 style="font-size:1.4rem;color:var(--forest)">Administrators</h2>
+        <p style="font-size:.85rem;color:var(--text3)">${adms.length}/5 admin slots used</p>
+      </div>
+      ${adms.length<5
+        ?`<button class="btn bp" onclick="showAddAdm()"><i data-lucide="user-plus" size="16"></i> Add Admin</button>`
+        :'<span class="badge bg-am">All 5 slots filled</span>'}
+    </div>
+    ${adms.length===0
+      ?`<div class="empty"><div class="eico">🛡️</div><h3>No admins yet</h3><p>Add up to 5 admin accounts.</p><button class="btn bp" style="margin-top:1rem" onclick="showAddAdm()">Add First Admin</button></div>`
+      :`<div class="tw"><table>
+        <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+        <tbody>${adms.map(a=>`<tr>
+          <td style="font-weight:500">${x(a.full_name)}</td>
+          <td style="font-size:.82rem;color:var(--tx2)">${x(a.email)}</td>
+          <td><span class="badge ${a.status==='active'?'bg-in':'bg-no'}">${a.status}</span></td>
+          <td style="font-size:.8rem;color:var(--text3)">${fd(a.date_joined)}</td>
+          <td>
+            <div style="display:flex;gap:4px">
+              ${a.status==='active'
+                ?`<button class="btn bg sm" style="color:var(--danger)" onclick="suspU('${a.id}','${x(a.full_name)}')">Suspend</button>`
+                :`<button class="btn bg sm" style="color:var(--ok)" onclick="unsuspU('${a.id}','${x(a.full_name)}')">Restore</button>`}
+              <button class="btn bg sm" style="color:var(--danger)" onclick="delAdm('${a.id}','${x(a.full_name)}')">Remove</button>
+            </div>
+          </td>
+        </tr>`).join('')}</tbody>
+      </table></div>`}
+  `);
+}
+function showAddAdm(){
+  showModal(`
+    <div class="mhd">
+      <h3>Add Administrator</h3>
+      <button class="mcl" onclick="closeModal()"><i data-lucide="x" size="17"></i></button>
+    </div>
+    <div class="mbody">
+      <div style="background:var(--info-bg);border-radius:var(--r2);padding:10px 14px;margin-bottom:1rem;font-size:.83rem;color:var(--info)">
+        <strong>Admin permissions:</strong> manage books, categories, suspend users, view borrowings and settings.
+        Super admin can create up to 5 admins.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="ig"><label>First Name</label><input type="text" id="amf" placeholder="Alice"/></div>
+        <div class="ig"><label>Last Name</label><input type="text" id="aml" placeholder="Nakamura"/></div>
+      </div>
+      <div class="ig"><label>Email Address *</label><input type="email" id="ame" placeholder="admin@yourlibrary.com"/></div>
+      <div class="ig">
+        <label>Password *</label>
+        <input type="password" id="amp" placeholder="Min. 8 characters"/>
+        <div style="font-size:.73rem;color:var(--text3);margin-top:3px">Share this with the admin securely — they cannot reset it themselves.</div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap">
+        <button class="btn bs" onclick="closeModal()">Cancel</button>
+        <button class="btn bp" id="addadmbtn" onclick="subAddAdm()"><i data-lucide="user-plus" size="15"></i> Create Admin Account</button>
+      </div>
+    </div>`);
+}
+async function subAddAdm(){
+  const e=g('ame')?.value.trim(), p=g('amp')?.value;
+  if(!e||!p){toast('Email and password are required.','er');return;}
+  if(p.length<8){toast('Password must be at least 8 characters.','er');return;}
+
+  const btn=g('addadmbtn');
+  if(btn){btn.disabled=true;btn.innerHTML='<i data-lucide="loader" size="15"></i> Creating…';icons();}
+
+  const r=await api.post('/auth/admins/',{
+    email:e, password:p,
+    first_name:g('amf')?.value.trim()||'',
+    last_name:g('aml')?.value.trim()||'',
+    role:'admin'
+  });
+
+  if(!r){
+    toast('Network error — check your connection.','er');
+    if(btn){btn.disabled=false;btn.innerHTML='<i data-lucide="user-plus" size="15"></i> Create Admin Account';icons();}
+    return;
+  }
+
+  const d=await r.json();
+  if(r.ok){
+    toast(`Admin account created for ${e}!`,'ok');
+    closeModal();
+    pgAdmins(); // refresh the admins list
+  } else {
+    const msg=d.email?.[0]||d.password?.[0]||d.non_field_errors?.[0]||d.detail||d.error||'Failed to create admin.';
+    toast(msg,'er');
+    if(btn){btn.disabled=false;btn.innerHTML='<i data-lucide="user-plus" size="15"></i> Create Admin Account';icons();}
+  }
+}
+async function delAdm(id,name){
+  if(!confirm(`Remove admin "${name}"?`))return;
+  const r=await api.del('/auth/admins/'+id+'/');
+  if(r.ok){toast(name+' removed.','ok');pgAdmins();}else toast('Failed.','er');
+}
+
+// ── CLEAR MOCK DATA ───────────────────────────────────────────
+async function clearMock(){
+  if(!confirm('Remove ALL mock/seed data? (Books, users, borrowings added by seed_data)'))return;
+  const[r1,r2]=await Promise.all([api.del('/library/mock-data/'),api.del('/auth/mock-data/')]);
+  const d=r1.ok?await r1.json():{};
+  toast(`Mock data cleared — ${d.deleted?.total||0} records removed.`,'ok');
+  S._cb=null;S._sb=null;await Promise.all([loadCats(),loadBooks()]);pgDash();
+}
+
+// ── MODAL ─────────────────────────────────────────────────────
+function showModal(html,lg=false){
+  g('mr').innerHTML=`<div class="moverlay" onclick="ovClick(event)"><div class="modal${lg?' mlg':''}" onclick="event.stopPropagation()">${html}</div></div>`;
+  icons();
+  // On small screens, collapse all two-column grids inside the modal to one column.
+  // We must do this in JS because inline style= overrides media query grid-template-columns.
+  if(window.innerWidth<=600){
+    g('mr').querySelectorAll('[style*="grid-template-columns:1fr 1fr"],[style*="grid-template-columns: 1fr 1fr"]').forEach(el=>{
+      el.style.gridTemplateColumns='1fr';
+    });
+  }
+  // Focus the first input for accessibility
+  setTimeout(()=>{const f=g('mr').querySelector('input,select,textarea');if(f)f.focus();},60);
+}
+/* ── BOOK CONTENT READER ──────────────────────────────────────────
+   Opens the book file (PDF, ePub, etc.) in a full-screen modal.
+   PDFs render inline with the browser's native PDF viewer.
+   Other files open in a new tab.
+──────────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   readBook — authenticated book reader
+   ─────────────────────────────────────────────────────────────
+   Flow:
+     1. Call /api/v1/library/books/<id>/read/ with JWT header
+     2a. If external URL → open in full-screen iframe directly
+     2b. If local file  → stream bytes → Blob → ObjectURL → iframe
+   This ensures the iframe always gets content without needing
+   to re-authenticate (which it cannot do by itself).
+═══════════════════════════════════════════════════════════════ */
+async function readBook(bookId, title){
+  // Show loading modal immediately so user knows something is happening
+  g('mr').innerHTML=`<div class="moverlay" style="padding:0;align-items:stretch">
+    <div class="modal" style="max-width:100%;width:100%;height:100dvh;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem">
+      <div class="lsp" style="margin:0 auto;border-color:rgba(26,46,26,.15);border-top-color:var(--forest)"></div>
+      <div style="font-size:.88rem;color:var(--text3)">Loading "${x(title)}"…</div>
+      <button class="btn bs sm" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>`;
+
+  // Step 1 — ask backend for the file (JWT auth header added automatically)
+  const resp = await api.r('/library/books/'+bookId+'/read/');
+
+  if(!resp){
+    closeModal();
+    toast('Could not connect to server.','er');
+    return;
+  }
+  if(resp.status===403){
+    closeModal();
+    toast('Borrow this book first to read it.','er');
+    return;
+  }
+  if(resp.status===404){
+    closeModal();
+    toast('No digital file attached to this book.','er');
+    return;
+  }
+  if(!resp.ok){
+    closeModal();
+    toast('Could not load book file.','er');
+    return;
+  }
+
+  const ct = resp.headers.get('content-type') || '';
+
+  let blobUrl = null;
+  let fileType = 'pdf';
+  let isExternal = false;
+
+  if(ct.includes('application/json')){
+    // Backend returned JSON with an external/Supabase URL
+    const d = await resp.json();
+    if(d.error){ closeModal(); toast(d.error,'er'); return; }
+    blobUrl = d.url;
+    fileType = d.file_type || 'pdf';
+    isExternal = true;
+  } else {
+    // Backend streamed raw file bytes — wrap in a Blob URL
+    // This is the local-file path: the iframe gets a blob:// URL
+    // which the browser renders natively without re-authenticating
+    try {
+      const bytes = await resp.arrayBuffer();
+      const mime  = ct || 'application/pdf';
+      const blob  = new Blob([bytes], {type: mime});
+      blobUrl = URL.createObjectURL(blob);
+      fileType = ct.includes('pdf') ? 'pdf' : 'other';
+    } catch(e){
+      closeModal();
+      toast('Failed to load file bytes: '+e.message,'er');
+      return;
+    }
+  }
+
+  if(!blobUrl){ closeModal(); toast('No file URL available.','er'); return; }
+
+  const isPdf = fileType==='pdf' || blobUrl.toLowerCase().includes('.pdf');
+
+  if(isPdf){
+    // Render PDF full-screen inside a sticky modal
+    // "Open in tab" and "Download" buttons always work as fallbacks
+    g('mr').innerHTML=`<div class="moverlay" style="padding:0;align-items:stretch;background:rgba(0,0,0,.85)" onclick="ovClick(event)">
+      <div class="modal" style="max-width:100%;width:100%;height:100dvh;border-radius:0;display:flex;flex-direction:column;background:#1e1e1e" onclick="event.stopPropagation()">
+
+        <!-- Reader top bar -->
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#2a2a2a;flex-shrink:0;min-height:48px;overflow:hidden">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:.88rem;font-weight:600;color:#f0f0f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x(title)}</div>
+            <div style="font-size:.7rem;color:#888;margin-top:1px">Scroll to read • Pinch to zoom on mobile</div>
+          </div>
+          <a href="${blobUrl}" target="_blank" rel="noopener" class="btn sm"
+             style="background:#3a3a3a;color:#ccc;border:1px solid #555;flex-shrink:0;font-size:.75rem">
+            <i data-lucide="external-link" size="13"></i> New tab
+          </a>
+          <a href="${blobUrl}" download="${x(title)}.pdf" class="btn sm"
+             style="background:#3a3a3a;color:#ccc;border:1px solid #555;flex-shrink:0;font-size:.75rem">
+            <i data-lucide="download" size="13"></i>
+          </a>
+          <button onclick="closeModal()" class="btn sm"
+            style="background:#3a3a3a;color:#ccc;border:1px solid #555;flex-shrink:0;min-width:32px">
+            <i data-lucide="x" size="16"></i>
+          </button>
+        </div>
+
+        <!-- PDF iframe — uses blob URL or direct Supabase URL -->
+        <iframe id="book-iframe"
+          src="${blobUrl}"
+          style="flex:1;border:none;width:100%;background:#525659"
+          title="${x(title)}"
+          allowfullscreen>
+        </iframe>
+
+        <!-- Fallback shown if iframe fails (e.g. mobile browser blocks PDF in iframe) -->
+        <div id="reader-fallback" style="display:none;flex:1;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:#525659;color:#eee;padding:2rem;text-align:center">
+          <div style="font-size:2rem">📄</div>
+          <p style="font-size:.9rem;max-width:300px">Your browser cannot display this PDF inline.<br>Use one of the options below.</p>
+          <a href="${blobUrl}" target="_blank" rel="noopener" class="btn bp lg">Open PDF in New Tab</a>
+          <a href="${blobUrl}" download="${x(title)}.pdf" class="btn bs">Download PDF</a>
+        </div>
+      </div>
+    </div>`;
+    icons();
+
+    // If iframe fails to load after 4 seconds, show the fallback
+    setTimeout(()=>{
+      const iframe = document.getElementById('book-iframe');
+      const fallback = document.getElementById('reader-fallback');
+      if(!iframe || !fallback) return;
+      try{
+        // If iframe contentWindow is null, it blocked the content
+        if(!iframe.contentWindow || iframe.clientHeight < 10){
+          iframe.style.display='none';
+          fallback.style.display='flex';
+        }
+      } catch(e){
+        iframe.style.display='none';
+        fallback.style.display='flex';
+      }
+    }, 4000);
+
+    // For blob URLs, revoke after 10 minutes to free memory
+    if(!isExternal){
+      setTimeout(()=>{ try{URL.revokeObjectURL(blobUrl);}catch{} }, 600000);
+    }
+
+  } else {
+    // Non-PDF file — open in new tab (ePub, Word, etc.)
+    closeModal();
+    window.open(blobUrl, '_blank', 'noopener');
+    toast('Opening in new tab…','ok');
+  }
+}
+
+function closeModal(){g('mr').innerHTML='';}
+function ovClick(e){if(e.target.classList.contains('moverlay'))closeModal();}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function toast(msg,type='ok'){
+  const tc=g('tc');const id='t'+Date.now();
+  const im={ok:'check-circle',er:'x-circle',ok2:'info'}[type]||'info';
+  const cl={ok:'tok',er:'ter',ok2:'tin'}[type]||'tin';
+  const col={ok:'var(--ok)',er:'var(--danger)'}[type]||'var(--amber)';
+  const el=document.createElement('div');el.className='toast '+cl;el.id=id;
+  el.innerHTML=`<i data-lucide="${im}" size="16" style="color:${col};flex-shrink:0"></i><span>${x(msg)}</span>`;
+  tc.appendChild(el);if(window.lucide)lucide.createIcons();
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateY(10px)';el.style.transition='.3s';setTimeout(()=>el.remove(),300);},3500);
+}
+
+// ── TOP SEARCH ────────────────────────────────────────────────
+let _st;
+function onTopsearch(v){
+  S.q=v;
+  clearTimeout(_st);
+  _st=setTimeout(()=>{
+    if(S.page==='catalog'){
+      S._bc=null;
+      loadBooks(booksQS(),true).then(renderCatalog);
+    } else {
+      // Navigate to catalog so user sees filtered results
+      go('catalog');
+    }
+  },380);
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+const g=id=>document.getElementById(id);
+function show(id){const e=g(id);if(e)e.classList.remove('hidden');}
+function hide(id){const e=g(id);if(e)e.classList.add('hidden');}
+function serr(el,msg){if(!el)return;el.textContent=msg;el.classList.remove('hidden');}
+function herr(el){if(!el)return;el.classList.add('hidden');}
+function x(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function fd(s){if(!s)return'—';try{return new Date(s).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}catch{return'—';}}
+function gr(){const h=new Date().getHours();return h<12?'morning':h<17?'afternoon':'evening';}
+function cc(cat){return cat?.color||'#1a2e1a';}
+function icons(){if(window.lucide){try{lucide.createIcons();}catch{}}}
+
+/* ── MOBILE TABLE SCROLL HINTS ────────────────────────────────
+   After every page render, check each .tw (table wrapper).
+   If it's wider than its container, add:
+     - a scroll hint text above the table
+     - the .has-overflow class (shows gradient edge)
+   This tells phone users the table is scrollable sideways.
+──────────────────────────────────────────────────────────── */
+function addTableScrollHints(){
+  // Run after a brief paint delay so layout is complete
+  setTimeout(()=>{
+    document.querySelectorAll('.tw').forEach(tw=>{
+      // Remove any old hint to avoid duplicates
+      const prev=tw.previousElementSibling;
+      if(prev&&prev.classList.contains('tw-hint'))prev.remove();
+
+      // Check if table is actually wider than its wrapper
+      const overflows=tw.scrollWidth>tw.clientWidth+2;
+      if(overflows){
+        // Insert a small "scroll to see more →" hint above the table
+        const hint=document.createElement('p');
+        hint.className='tw-hint';
+        hint.textContent='← Scroll to see more →';
+        tw.parentNode.insertBefore(hint,tw);
+        tw.classList.add('has-overflow');
+      } else {
+        tw.classList.remove('has-overflow');
+      }
+    });
+  },100);
+}
+function hvStars(row,score){if(!row)return;row.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('on',i<score));}
+function rsStars(row,cur){if(!row)return;row.querySelectorAll('.star').forEach((s,i)=>{s.className='star'+(i<cur?' on':'');});}
+const _dbt={};
+function deb(fn,d){const k=fn.toString().slice(0,40);return function(){clearTimeout(_dbt[k]);_dbt[k]=setTimeout(()=>fn.apply(this,arguments),d);};}
+
+// ── BOOTSTRAP ─────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',async()=>{
+
+  /* ── HARD TIMEOUT: loading screen NEVER stays forever ──────────
+     If anything crashes or hangs, this ensures the user sees the
+     login page within 4 seconds no matter what.
+  ─────────────────────────────────────────────────────────────── */
+  const hideLoad = () => {
+    const el = g('loading');
+    if(!el) return;
+    el.style.transition = 'opacity 0.3s';
+    el.style.opacity = '0';
+    // Remove from DOM completely after fade — stops CSS animation from running
+    setTimeout(() => {
+      try { if(el && el.parentNode) el.parentNode.removeChild(el); }
+      catch { if(el) el.style.display = 'none'; }
+    }, 350);
+  };
+
+  const showAuth = () => {
+    hideLoad();
+    show('auth');
+    showLogin();
+  };
+
+  // Absolute safety net — if nothing works, show login after 4s
+  const safetyTimer = setTimeout(showAuth, 4000);
+
+  // Enter key on auth forms
+  document.addEventListener('keydown', e => {
+    if(e.key !== 'Enter') return;
+    const lw = g('lwrap'), rw = g('rwrap');
+    if(lw && !lw.classList.contains('hidden')) doLogin();
+    else if(rw && !rw.classList.contains('hidden')) doReg();
+  });
+
+  try {
+    // Load any saved tokens from localStorage
+    _load();
+
+    if(S.tok && S.user) {
+      // We have a saved session — hide loader immediately and verify in background
+      hideLoad();
+      clearTimeout(safetyTimer);
+
+      try {
+        // 5-second timeout on the profile fetch so it never hangs
+        const controller = new AbortController();
+        const fetchTimer = setTimeout(() => controller.abort(), 5000);
+
+        const r = await fetch(API + '/auth/profile/', {
+          headers: { 'Authorization': 'Bearer ' + S.tok.access },
+          signal: controller.signal,
+        });
+        clearTimeout(fetchTimer);
+
+        if(r && r.ok) {
+          S.user = await r.json();
+          _save();
+          hide('auth');
+          await boot();
+        } else if(r && r.status === 401 && S.tok.refresh) {
+          // Try token refresh once
+          const refreshed = await api.ref();
+          if(refreshed) {
+            const r2 = await api.get('/auth/profile/');
+            if(r2 && r2.ok) {
+              S.user = await r2.json();
+              _save();
+              hide('auth');
+              await boot();
+              return;
+            }
+          }
+          // Refresh failed — clear tokens and show login
+          localStorage.removeItem('sp_t');
+          localStorage.removeItem('sp_u');
+          S.tok = null; S.user = null;
+          showAuth();
+        } else {
+          // Any other error — clear and show login
+          localStorage.removeItem('sp_t');
+          localStorage.removeItem('sp_u');
+          S.tok = null; S.user = null;
+          showAuth();
+        }
+      } catch(fetchErr) {
+        // Network error or timeout — show login (user can try again)
+        console.warn('Profile fetch failed:', fetchErr.message);
+        showAuth();
+      }
+
+    } else {
+      // No saved session — go straight to login
+      clearTimeout(safetyTimer);
+      showAuth();
+    }
+
+  } catch(globalErr) {
+    // Catch-all: something unexpected crashed — always show login
+    console.error('Boot error:', globalErr);
+    clearTimeout(safetyTimer);
+    showAuth();
+  }
+
+  // Safe icon init — Lucide might not have loaded yet
+  try { icons(); } catch(e) { console.warn('icons() failed:', e); }
+
+  // Resize listener for table scroll hints (safe — function may not exist yet)
+  window.addEventListener('resize', () => {
+    try { addTableScrollHints(); } catch{}
+  }, {passive: true});
+});
+</script>
+</body>
+</html>
