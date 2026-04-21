@@ -412,16 +412,24 @@ td:last-child{max-width:none;overflow:visible}
   <div class="ll">Source<span>Point</span></div>
   <div class="lt">Digital Library</div>
   <div class="lsp"></div>
-  <div id="load-msg" style="color:rgba(247,243,237,.4);font-size:.78rem;margin-top:24px;max-width:280px;text-align:center;display:none">
-    Taking longer than usual…<br>Make sure the Django server is running.
-  </div>
   <script>
-    // Show "taking long" message after 2.5s if still loading
+    /* Hard kill: remove loading screen after 1.5s no matter what.
+       Runs before any other JS so it always fires even if main script errors. */
     setTimeout(function(){
-      var m=document.getElementById('load-msg');
-      if(m&&document.getElementById('loading')&&document.getElementById('loading').style.opacity!=='0')
-        m.style.display='block';
-    }, 2500);
+      var el=document.getElementById('loading');
+      if(!el)return;
+      el.style.transition='opacity 0.3s';
+      el.style.opacity='0';
+      setTimeout(function(){
+        try{el.parentNode.removeChild(el);}catch(e){el.style.display='none';}
+        /* If auth page still hidden and app not shown, reveal login */
+        var auth=document.getElementById('auth');
+        var app=document.getElementById('app');
+        if(auth&&auth.classList.contains('hidden')&&(!app||!app.classList.contains('on'))){
+          auth.classList.remove('hidden');
+        }
+      },320);
+    },1500);
   </script>
 </div>
 
@@ -541,7 +549,7 @@ async function doLogin(){
   try{
     const r=await fetch(API+'/auth/login/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});
     const d=await r.json();
-    if(r.ok){S.user=d.user;S.tok=d.tokens;_save();herr(err);boot();}
+    if(r.ok){S.user=d.user;S.tok=d.tokens;_save();herr(err);btn.disabled=false;btn.textContent='Sign in';boot();}
     else serr(err,d.non_field_errors?.[0]||d.detail||Object.values(d)[0]?.[0]||'Login failed.');
   }catch{serr(err,'Cannot reach server. Is the backend running?');}
   finally{btn.disabled=false;btn.textContent='Sign in';}
@@ -567,36 +575,32 @@ function doLogout(){
   showLogin();
 }
 // fill() removed — demo credentials removed
-function showLogin(){show('lwrap');hide('rwrap');}
-function showReg(){show('rwrap');hide('lwrap');}
+function showLogin(){show('auth');show('lwrap');hide('rwrap');}
+function showReg(){show('auth');show('rwrap');hide('lwrap');}
 
 // ── BOOT ──────────────────────────────────────────────────────
 async function boot(){
+  try { hide('auth'); } catch(e){}
   try {
-    hide('auth');
     const app = g('app');
     if(app) app.classList.add('on');
+  } catch(e){}
+  try { renderNav(); } catch(e){ console.warn('renderNav:', e); }
+  try { updateUser(); } catch(e){ console.warn('updateUser:', e); }
+  try { icons(); } catch(e){}
 
-    // Build navigation and update user display — wrapped safely
-    try { renderNav(); } catch(e){ console.error('renderNav failed:', e); }
-    try { updateUser(); } catch(e){ console.error('updateUser failed:', e); }
-    try { icons(); } catch(e){ console.warn('icons failed:', e); }
+  // Navigate IMMEDIATELY — don't wait for data
+  // Pages load their own data and re-render when it arrives
+  const role = S.user?.role;
+  const page = (role==='superadmin'||role==='admin') ? 'dashboard' : 'catalog';
+  go(page);
 
-    // Load catalog data — if it fails, app still loads (just empty)
-    try { await Promise.all([loadCats(), loadBooks()]); }
-    catch(e){ console.warn('Initial data load failed:', e); }
-
-    // Role-based redirect — no manual role selection needed
-    const role = S.user?.role;
-    go(role === 'superadmin' || role === 'admin' ? 'dashboard' : 'catalog');
-
-  } catch(e) {
-    console.error('boot() crashed:', e);
-    // Last resort: show the app in catalog mode even if boot partially failed
-    const app = g('app');
-    if(app) app.classList.add('on');
-    try { go('catalog'); } catch{}
-  }
+  // Load data in background after page is already shown
+  try { await Promise.all([loadCats(), loadBooks()]); }
+  catch(e){ console.warn('Background data load:', e); }
+  
+  // Re-render catalog after data loads (if still on catalog)
+  if(S.page === 'catalog') { try { renderCatalog(); } catch(e){} }
 }
 
 // ── ROUTER ────────────────────────────────────────────────────
@@ -606,56 +610,21 @@ const TITLES={catalog:'Browse Catalog',mybooks:'My Bookshelf',ai:'AI Assistant �
   settings:'Borrow Settings',admins:'Administrators'};
 
 function go(page){
-  try {
-    S.page = page;
-    try { setNav(page); } catch{}
-    const ttl = g('ttl');
-    if(ttl) ttl.textContent = TITLES[page] || 'SourcePoint';
-    try { closeSb(); } catch{}
-
-    // Skeleton placeholder renders instantly
-    const pcEl = g('pc');
-    if(pcEl) pcEl.innerHTML = `<div style="display:flex;flex-direction:column;gap:1rem">
-      <div class="sk" style="height:28px;width:200px"></div>
-      <div class="bgrid">${'<div class="sk" style="height:250px;border-radius:16px"></div>'.repeat(6)}</div>
-    </div>`;
-
-    const R = {
-      catalog:pgCatalog, mybooks:pgMyBooks, ai:pgAI, profile:pgProfile,
-      dashboard:pgDash, books:pgBooks, categories:pgCats,
-      users:pgUsers, borrowings:pgBorrows, settings:pgSettings, admins:pgAdmins
-    };
-
-    // Render after skeleton paints (setTimeout 0 yields to browser)
-    setTimeout(() => {
-      try {
-        (R[page] || pgCatalog)();
-      } catch(e) {
-        console.error('Page render failed [' + page + ']:', e);
-        const pcEl2 = g('pc');
-        if(pcEl2) pcEl2.innerHTML = `<div class="empty">
-          <div class="eico">⚠️</div>
-          <h3>Page could not load</h3>
-          <p style="font-size:.85rem;color:var(--text3);margin-top:4px">${e.message || 'Unknown error'}</p>
-          <button class="btn bp" style="margin-top:1rem" onclick="go('catalog')">Back to Catalog</button>
-        </div>`;
-      }
-    }, 0);
-
-  } catch(e){
-    console.error('go() crashed:', e);
-  }
+  S.page=page;setNav(page);
+  g('ttl').textContent=TITLES[page]||'SourcePoint';
+  closeSb();
+  // Skeleton loader — instant perceived performance
+  g('pc').innerHTML=`<div style="display:flex;flex-direction:column;gap:1rem">
+    <div class="sk" style="height:28px;width:200px"></div>
+    <div class="bgrid">${'<div class="sk" style="height:250px;border-radius:16px"></div>'.repeat(6)}</div>
+  </div>`;
+  const R={catalog:pgCatalog,mybooks:pgMyBooks,ai:pgAI,profile:pgProfile,
+    dashboard:pgDash,books:pgBooks,categories:pgCats,
+    users:pgUsers,borrowings:pgBorrows,settings:pgSettings,admins:pgAdmins};
+  (R[page]||pgCatalog)();
 }
 
-
-function pc(html){
-  try {
-    const el = g('pc');
-    if(el) el.innerHTML = html;
-  } catch(e){ console.error('pc() innerHTML failed:', e); }
-  try { icons(); } catch{}
-  try { addTableScrollHints(); } catch{}
-}
+function pc(html){g('pc').innerHTML=html;icons();addTableScrollHints();}
 
 // ── SIDEBAR ───────────────────────────────────────────────────
 const NAV={
@@ -751,6 +720,40 @@ async function openBk(id){
   if(!r||!r.ok){closeModal();toast('Failed to load book.','er');return;}
   renderBkModal(await r.json());
 }
+
+/* Book control buttons — uses data attributes to avoid ALL quote escaping issues */
+function mkCtrl(b,ib,mx){
+  const isAdm = S.user && (S.user.role==='admin'||S.user.role==='superadmin');
+  const hasFile = !!(b.book_file_url || b.file_url);
+
+  // Store id+title in window so onclick handlers can retrieve them safely
+  window._bk = {id: b.id, title: b.title};
+
+  if(ib){
+    return (hasFile ? '<button class="btn bp sm" onclick="readBook(window._bk.id,window._bk.title)"><i data-lucide="book-open" size="13"></i> Read</button>' : '')
+      + '<span class="badge bg-ok" style="order:-1">✓ In library</span>'
+      + '<button class="btn bs sm" onclick="retBk(window._bk.id,window._bk.title)">Return</button>'
+      + '<button class="btn ba sm" onclick="aiSum(window._bk.id,window._bk.title)"><i data-lucide="sparkles" size="13"></i> AI</button>'
+      ;
+  }
+  if(isAdm && hasFile){
+    return '<span class="badge bg-in">Admin</span>'
+      + '<button class="btn bp sm" onclick="readBook(window._bk.id,window._bk.title)"><i data-lucide="book-open" size="13"></i> Read Book</button>'
+      + '<button class="btn ba sm" onclick="aiSum(window._bk.id,window._bk.title)"><i data-lucide="sparkles" size="13"></i> AI Summary</button>'
+      ;
+  }
+  if(b.is_available){
+    return '<div style="width:100%">'
+      + '<div style="font-size:.8rem;color:var(--tx3);margin-bottom:6px">Borrow for: <strong id="dlbl">14 days</strong> (max '+mx+'d)</div>'
+      + '<input type="range" min="1" max="'+mx+'" value="14" id="dslide" style="width:100%;margin-bottom:10px" oninput="updDlbl(this.value)"/>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:8px">'
+      + '<button class="btn bp" onclick="borBk(window._bk.id,window._bk.title)"><i data-lucide="book-plus" size="16"></i> Add to My Library</button>'
+      + '<button class="btn bs sm" onclick="aiSum(window._bk.id,window._bk.title)"><i data-lucide="sparkles" size="13"></i> AI</button>'
+      + '</div></div>';
+  }
+  return '<span class="badge bg-gy">Unavailable</span>';
+}
+
 function renderBkModal(b){
   const col=cc(b.categories?.[0]);const ib=b.is_borrowed_by_user;const mx=b.effective_max_borrow_days||30;
   const ur=b.user_rating?.score||0;
@@ -779,37 +782,7 @@ function renderBkModal(b){
             <strong>${b.average_rating.toFixed(1)}</strong><span style="font-size:.78rem;color:var(--text3)">(${b.rating_count} reviews)</span>
           </div>
           <p class="bdesc">${x(b.description||'No description available.')}</p>
-          <div class="bctrl">
-            ${(()=>{
-              const isAdm=S.user&&(S.user.role==='admin'||S.user.role==='superadmin');
-              const hasFile=!!(b.book_file_url||b.file_url);
-              if(ib){
-                // User has borrowed this book
-                return `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
-                  <span class="badge bg-ok">✓ In your library</span>
-                  ${hasFile?`<button class="btn bp sm" onclick="readBook('${b.id}','${x(b.title)}')"><i data-lucide="book-open" size="13"></i> Read</button>`:''}
-                  <button class="btn bs sm" onclick="retBk('${b.id}','${x(b.title)}')">Return</button>
-                  <button class="btn ba sm" onclick="aiSum('${b.id}','${x(b.title)}')"><i data-lucide="sparkles" size="13"></i> AI</button>
-                </div>`;
-              }
-              if(isAdm&&hasFile){
-                // Admin can read without borrowing
-                return `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
-                  <span class="badge bg-in">Admin Access</span>
-                  <button class="btn bp sm" onclick="readBook('${b.id}','${x(b.title)}')"><i data-lucide="book-open" size="13"></i> Read Book</button>
-                  <button class="btn ba sm" onclick="aiSum('${b.id}','${x(b.title)}')"><i data-lucide="sparkles" size="13"></i> AI Summary</button>
-                </div>`;
-              }
-              if(b.is_available){
-                return `<div>
-              <div style="font-size:.8rem;color:var(--text3);margin-bottom:6px">Borrow for: <strong id="dlbl">14 days</strong> <span style="color:var(--text3)">(max ${mx})</span></div>
-              <div class="brow"><input type="range" min="1" max="${mx}" value="14" id="dslide" oninput="g('dlbl').textContent=this.value+' days'"/></div>
-              <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
-                <button class="btn bp" onclick="borBk('${b.id}','${x(b.title)}')"><i data-lucide="book-plus" size="16"></i> Add to My Library</button>
-                <button class="btn bs sm" onclick="aiSum('${b.id}','${x(b.title)}')"><i data-lucide="sparkles" size="13"></i> AI Summary</button>
-              </div></div>`:`<span class="badge bg-gy">Currently unavailable</span>`;
-              }
-            })()}
+          <div class="bctrl" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-l)">${mkCtrl(b,ib,mx)}
           </div>
         </div>
       </div>
@@ -950,7 +923,16 @@ async function delAcct(){const r=await api.del('/auth/account/delete/');if(r.ok)
 
 // ── ADMIN DASHBOARD ───────────────────────────────────────────
 async function pgDash(){
-  const st=await api.json('/library/admin/stats/')||{};
+  // Show skeleton immediately so screen is never blank
+  pc(`<div style="margin-bottom:1.5rem">
+    <div class="sk" style="height:28px;width:260px;margin-bottom:8px"></div>
+    <div class="sk" style="height:18px;width:200px"></div>
+  </div>
+  <div class="sgrid">${'<div class="sk" style="height:90px;border-radius:16px"></div>'.repeat(6)}</div>`);
+
+  // Load stats in background
+  const st = await api.json('/library/admin/stats/') || {};
+
   pc(`<div style="margin-bottom:1.5rem"><h2 style="font-size:1.4rem;color:var(--forest)">Good ${gr()}, ${x(S.user.first_name||'Admin')}</h2><p style="color:var(--text3);font-size:.87rem">Library overview for today.</p></div>
   <div class="sgrid">
     ${sc('g','library-big',st.total_books??'—','Books Available')}
@@ -971,6 +953,7 @@ async function pgDash(){
   <h3 style="font-size:1rem;color:var(--forest);margin-bottom:1rem">Featured Books</h3>
   <div class="bgrid">${S.books.slice(0,6).map(bc).join('')}</div>`);
 }
+
 function sc(cl,ic,val,lbl){return `<div class="scard"><div class="sicon ${cl}"><i data-lucide="${ic}" size="18"></i></div><div class="sval">${val}</div><div class="slbl">${lbl}</div></div>`;}
 
 // ── ADMIN: BOOKS ──────────────────────────────────────────────
@@ -1013,8 +996,7 @@ function showAddBook(){
     <div class="ig" style="margin-top:6px">
       <label>Cover Image — Upload from device</label>
       <input type="file" id="abcov_file" accept="image/*" style="border:1.5px dashed var(--border);border-radius:var(--r2);padding:10px;background:var(--cream);cursor:pointer;width:100%;box-sizing:border-box"/>
-      <div style="text-align:center;font-size:.73rem;color:var(--text3);margin:4px 0">— or paste an image URL —</div>
-      <input type="url" id="abco" placeholder="https://example.com/cover.jpg" style="border:1.5px solid var(--border);border-radius:var(--r2);padding:10px 12px;width:100%;font-size:.875rem;box-sizing:border-box"/>
+      <div style="font-size:.73rem;color:var(--text3);margin-top:4px">JPG, PNG, WebP supported. Saved to Supabase or local server.</div>
     </div>
     <div class="ig">
       <label>Book File (PDF / ePub) — Upload from device</label>
@@ -1048,7 +1030,6 @@ async function subAddBook(){
   fd.append('pages',g('abpg')?.value||'');
   fd.append('material_type',g('abty')?.value||'book');
   fd.append('language',g('abla')?.value||'English');
-  fd.append('cover_image_url',g('abco')?.value||'');
   fd.append('max_borrow_days',g('abmd')?.value||'');
   fd.append('total_copies',g('abcp')?.value||'3');
   fd.append('description',g('abde')?.value||'');
@@ -1502,6 +1483,7 @@ function onTopsearch(v){
 
 // ── UTILS ─────────────────────────────────────────────────────
 const g=id=>document.getElementById(id);
+function updDlbl(v){const el=document.getElementById('dlbl');if(el)el.textContent=v+' days';}
 function show(id){const e=g(id);if(e)e.classList.remove('hidden');}
 function hide(id){const e=g(id);if(e)e.classList.add('hidden');}
 function serr(el,msg){if(!el)return;el.textContent=msg;el.classList.remove('hidden');}
@@ -1548,117 +1530,81 @@ const _dbt={};
 function deb(fn,d){const k=fn.toString().slice(0,40);return function(){clearTimeout(_dbt[k]);_dbt[k]=setTimeout(()=>fn.apply(this,arguments),d);};}
 
 // ── BOOTSTRAP ─────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded',async()=>{
+document.addEventListener('DOMContentLoaded', function(){
+  try { if(window.lucide) lucide.createIcons(); } catch(e){}
 
-  /* ── HARD TIMEOUT: loading screen NEVER stays forever ──────────
-     If anything crashes or hangs, this ensures the user sees the
-     login page within 4 seconds no matter what.
-  ─────────────────────────────────────────────────────────────── */
-  const hideLoad = () => {
-    const el = g('loading');
-    if(!el) return;
-    el.style.transition = 'opacity 0.3s';
-    el.style.opacity = '0';
-    // Remove from DOM completely after fade — stops CSS animation from running
-    setTimeout(() => {
-      try { if(el && el.parentNode) el.parentNode.removeChild(el); }
-      catch { if(el) el.style.display = 'none'; }
-    }, 350);
-  };
-
-  const showAuth = () => {
-    hideLoad();
-    show('auth');
-    showLogin();
-  };
-
-  // Absolute safety net — if nothing works, show login after 4s
-  const safetyTimer = setTimeout(showAuth, 4000);
-
-  // Enter key on auth forms
-  document.addEventListener('keydown', e => {
+  document.addEventListener('keydown', function(e){
     if(e.key !== 'Enter') return;
-    const lw = g('lwrap'), rw = g('rwrap');
-    if(lw && !lw.classList.contains('hidden')) doLogin();
-    else if(rw && !rw.classList.contains('hidden')) doReg();
+    var lw=document.getElementById('lwrap'), rw=document.getElementById('rwrap');
+    if(lw&&!lw.classList.contains('hidden')) doLogin();
+    else if(rw&&!rw.classList.contains('hidden')) doReg();
   });
 
-  try {
-    // Load any saved tokens from localStorage
-    _load();
+  window.addEventListener('resize', function(){
+    try{addTableScrollHints();}catch(e){}
+  }, {passive:true});
 
-    if(S.tok && S.user) {
-      // We have a saved session — hide loader immediately and verify in background
-      hideLoad();
-      clearTimeout(safetyTimer);
+  /* Try to restore session from localStorage */
+  try { _load(); } catch(e){ showLogin(); return; }
 
-      try {
-        // 5-second timeout on the profile fetch so it never hangs
-        const controller = new AbortController();
-        const fetchTimer = setTimeout(() => controller.abort(), 5000);
+  if(!S.tok || !S.user){ showLogin(); return; }
 
-        const r = await fetch(API + '/auth/profile/', {
-          headers: { 'Authorization': 'Bearer ' + S.tok.access },
-          signal: controller.signal,
-        });
-        clearTimeout(fetchTimer);
+  /* Have saved token — verify it with a 4s hard timeout */
+  var bootTimer = setTimeout(function(){
+    localStorage.removeItem('sp_t'); localStorage.removeItem('sp_u');
+    S.tok=null; S.user=null;
+    showLogin();
+  }, 4000);
 
-        if(r && r.ok) {
-          S.user = await r.json();
-          _save();
-          hide('auth');
-          await boot();
-        } else if(r && r.status === 401 && S.tok.refresh) {
-          // Try token refresh once
-          const refreshed = await api.ref();
-          if(refreshed) {
-            const r2 = await api.get('/auth/profile/');
-            if(r2 && r2.ok) {
-              S.user = await r2.json();
-              _save();
-              hide('auth');
-              await boot();
-              return;
-            }
-          }
-          // Refresh failed — clear tokens and show login
-          localStorage.removeItem('sp_t');
-          localStorage.removeItem('sp_u');
-          S.tok = null; S.user = null;
-          showAuth();
-        } else {
-          // Any other error — clear and show login
-          localStorage.removeItem('sp_t');
-          localStorage.removeItem('sp_u');
-          S.tok = null; S.user = null;
-          showAuth();
-        }
-      } catch(fetchErr) {
-        // Network error or timeout — show login (user can try again)
-        console.warn('Profile fetch failed:', fetchErr.message);
-        showAuth();
-      }
-
-    } else {
-      // No saved session — go straight to login
-      clearTimeout(safetyTimer);
-      showAuth();
+  fetch(API+'/auth/profile/', {
+    headers:{'Authorization':'Bearer '+S.tok.access}
+  })
+  .then(function(r){
+    clearTimeout(bootTimer);
+    if(r&&r.ok){
+      return r.json().then(function(u){
+        S.user=u; _save();
+        var auth=document.getElementById('auth');
+        if(auth) auth.classList.add('hidden');
+        try{ boot(); }catch(e){ showLogin(); }
+      });
     }
-
-  } catch(globalErr) {
-    // Catch-all: something unexpected crashed — always show login
-    console.error('Boot error:', globalErr);
-    clearTimeout(safetyTimer);
-    showAuth();
-  }
-
-  // Safe icon init — Lucide might not have loaded yet
-  try { icons(); } catch(e) { console.warn('icons() failed:', e); }
-
-  // Resize listener for table scroll hints (safe — function may not exist yet)
-  window.addEventListener('resize', () => {
-    try { addTableScrollHints(); } catch{}
-  }, {passive: true});
+    /* Try token refresh on 401 */
+    if(r&&r.status===401&&S.tok&&S.tok.refresh){
+      return fetch(API+'/auth/token/refresh/',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({refresh:S.tok.refresh})
+      }).then(function(r2){
+        if(r2&&r2.ok){
+          return r2.json().then(function(d){
+            S.tok.access=d.access; _save();
+            return fetch(API+'/auth/profile/',{
+              headers:{'Authorization':'Bearer '+S.tok.access}
+            }).then(function(r3){
+              if(r3&&r3.ok){
+                return r3.json().then(function(u){
+                  S.user=u; _save();
+                  var auth=document.getElementById('auth');
+                  if(auth) auth.classList.add('hidden');
+                  try{ boot(); }catch(e){ showLogin(); }
+                });
+              } else { showLogin(); }
+            });
+          });
+        } else {
+          localStorage.removeItem('sp_t'); localStorage.removeItem('sp_u');
+          S.tok=null; S.user=null; showLogin();
+        }
+      }).catch(function(){ showLogin(); });
+    }
+    localStorage.removeItem('sp_t'); localStorage.removeItem('sp_u');
+    S.tok=null; S.user=null; showLogin();
+  })
+  .catch(function(err){
+    clearTimeout(bootTimer);
+    console.warn('Session check failed:', err&&err.message||err);
+    showLogin();
+  });
 });
 </script>
 </body>
