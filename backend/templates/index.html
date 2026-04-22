@@ -1308,222 +1308,66 @@ function showModal(html,lg=false){
    to re-authenticate (which it cannot do by itself).
 ═══════════════════════════════════════════════════════════════ */
 async function readBook(bookId, title){
-  // Show loading modal
-  g('mr').innerHTML=`<div class="moverlay" style="padding:0;align-items:stretch">
-    <div class="modal" style="max-width:100%;width:100%;height:100dvh;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem">
-      <div class="lsp" style="margin:0 auto;border-color:rgba(26,46,26,.15);border-top-color:var(--forest)"></div>
-      <div style="font-size:.88rem;color:var(--text3)">Loading "${x(title)}"…</div>
-      <button class="btn bs sm" onclick="closeModal()">Cancel</button>
-    </div>
-  </div>`;
+  /* ── Show a small loading toast while we fetch the URL ── */
+  const toastId = 't'+Date.now();
+  const tc = g('tc');
+  const loadEl = document.createElement('div');
+  loadEl.className='toast tin2'; loadEl.id=toastId;
+  loadEl.innerHTML='<span>Opening "'+x(title)+'"…</span>';
+  tc.appendChild(loadEl);
 
-  // ── Detect platform ───────────────────────────────────────────────
-  const ua = navigator.userAgent || '';
-  const isIOS     = /iPhone|iPad|iPod/i.test(ua);
-  const isAndroid = /Android/i.test(ua);
-  const isMobile  = (isIOS || isAndroid) &&
-                    ('ontouchstart' in window || navigator.maxTouchPoints > 1);
-
-  // ── Fetch file through Django (adds JWT, works for private Supabase) ──
   const resp = await api.r('/library/books/'+bookId+'/read/');
 
-  if(!resp){ closeModal(); toast('Could not connect to server.','er'); return; }
-  if(resp.status===403){ closeModal(); toast('Borrow this book first to read it.','er'); return; }
-  if(resp.status===404){ closeModal(); toast('No digital file attached to this book.','er'); return; }
-  if(!resp.ok){ closeModal(); toast('Could not load book file.','er'); return; }
+  /* Remove loading toast */
+  const le = document.getElementById(toastId);
+  if(le) le.remove();
+
+  if(!resp){ toast('Could not connect to server.','er'); return; }
+  if(resp.status===403){ toast('Borrow this book first to read it.','er'); return; }
+  if(resp.status===404){ toast('No file attached to this book.','er'); return; }
+  if(!resp.ok){ toast('Could not load book file.','er'); return; }
 
   const ct = resp.headers.get('content-type') || '';
-  let blobUrl = null;
-  let fileType = 'pdf';
-  let isExternal = false;
-  let externalUrl = null;  // original URL if Supabase/http
 
   if(ct.includes('application/json')){
+    /* ── Supabase / external URL — open directly in new tab ── */
     const d = await resp.json();
-    if(d.error){ closeModal(); toast(d.error,'er'); return; }
-    externalUrl = d.url;
-    blobUrl = d.url;
-    fileType = d.file_type || 'pdf';
-    isExternal = true;
+    if(d.error){ toast(d.error,'er'); return; }
+
+    /* window.open must be called synchronously in the user gesture chain.
+       Since we awaited fetch above, some browsers block it.
+       Use a temporary <a> click which is more reliable. */
+    const a = document.createElement('a');
+    a.href = d.url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast('Opened "'+x(title)+'" in a new tab.','ok');
+
   } else {
+    /* ── Local file — stream bytes → blob URL → new tab ── */
     try {
       const bytes = await resp.arrayBuffer();
-      const blob  = new Blob([bytes], {type: ct || 'application/pdf'});
-      blobUrl = URL.createObjectURL(blob);
-      fileType = ct.includes('pdf') ? 'pdf' : 'other';
-    } catch(e){ closeModal(); toast('Failed to load file: '+e.message,'er'); return; }
-  }
+      const mime  = ct || 'application/pdf';
+      const blob  = new Blob([bytes], {type: mime});
+      const url   = URL.createObjectURL(blob);
 
-  if(!blobUrl){ closeModal(); toast('No file URL available.','er'); return; }
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
 
-  const isPdf = fileType==='pdf' || blobUrl.toLowerCase().includes('.pdf');
-
-  // ══════════════════════════════════════════════════════════════════
-  // MOBILE PATH
-  // Strategy:
-  //   • iOS   → use WKWebView-compatible inline viewer (iframe with blob works
-  //              in Safari on iOS 16+ for blob URLs; fallback to Google Docs viewer)
-  //   • Android → Google Docs Viewer URL wrapping (renders without downloading)
-  //              Only works for publicly accessible URLs.
-  //              For local/Supabase files we use blob URL which Chrome handles natively.
-  // ══════════════════════════════════════════════════════════════════
-  if(isMobile && isPdf){
-
-    // Google Docs viewer URL — works for any https:// URL, renders in-browser
-    // on both Android Chrome and iOS Safari without a download dialog
-    const googleDocsViewer = (url) =>
-      'https://docs.google.com/viewer?embedded=true&url=' + encodeURIComponent(url);
-
-    // For iOS: blob URLs work fine in Safari's WKWebView-based iframe
-    // For Android Chrome: blob URLs also work in iframe (Chrome has built-in PDF viewer)
-    // Google Docs viewer is the fallback for when blob URLs can't be used
-    // (e.g. file came from an external https URL)
-
-    const viewerUrl = isExternal
-      ? googleDocsViewer(externalUrl)   // external URL → Google Docs viewer
-      : blobUrl;                         // local/Supabase proxied → blob URL in iframe
-
-    // Build the platform label for UI
-    const platformLabel = isIOS
-      ? 'Safari PDF Viewer'
-      : 'Google Drive PDF Viewer';
-    const platformIcon = isIOS ? '🍎' : '📱';
-
-    g('mr').innerHTML=`<div class="moverlay" style="padding:0;align-items:stretch;background:rgba(0,0,0,.9)" onclick="ovClick(event)">
-      <div class="modal" style="max-width:100%;width:100%;height:100dvh;border-radius:0;display:flex;flex-direction:column;background:#1a1a1a" onclick="event.stopPropagation()">
-
-        <!-- Mobile reader top bar -->
-        <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:#111;flex-shrink:0;min-height:50px">
-          <div style="flex:1;min-width:0">
-            <div style="font-size:.82rem;font-weight:600;color:#f0f0f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x(title)}</div>
-            <div style="font-size:.65rem;color:#888">${platformIcon} ${platformLabel}</div>
-          </div>
-          <!-- Download button — saves to device Files/Downloads -->
-          <a href="${blobUrl}" download="${x(title)}.pdf" class="btn sm"
-             style="background:#2a2a2a;color:#ccc;border:1px solid #444;flex-shrink:0;font-size:.72rem;padding:5px 10px">
-            <i data-lucide="download" size="13"></i> Save
-          </a>
-          <button onclick="closeModal()" class="btn sm"
-            style="background:#2a2a2a;color:#ccc;border:1px solid #444;flex-shrink:0;min-width:32px;padding:5px 8px">
-            <i data-lucide="x" size="15"></i>
-          </button>
-        </div>
-
-        <!-- PDF iframe — works on iOS Safari (WKWebView) and Android Chrome -->
-        <iframe id="book-iframe"
-          src="${viewerUrl}"
-          style="flex:1;border:none;width:100%;background:#525659;-webkit-overflow-scrolling:touch"
-          title="${x(title)}"
-          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-          allowfullscreen>
-        </iframe>
-
-        <!-- Fallback: shown if iframe fails (older devices, restrictive browsers) -->
-        <div id="reader-fallback" style="display:none;flex:1;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:#525659;color:#eee;padding:2rem;text-align:center">
-          <div style="font-size:2.5rem">📄</div>
-          <p style="font-size:.9rem;max-width:280px;line-height:1.5">
-            Your browser cannot show the PDF inline.<br>
-            Choose an option below:
-          </p>
-          ${isIOS
-            ? `<a href="${blobUrl}" target="_blank" rel="noopener" class="btn bp"
-                 style="font-size:.9rem;padding:12px 24px">
-                 Open in Safari / Files App
-               </a>`
-            : `<a href="${googleDocsViewer(isExternal?externalUrl:blobUrl)}"
-                 target="_blank" rel="noopener" class="btn bp"
-                 style="font-size:.9rem;padding:12px 24px">
-                 Open in Google Drive Viewer
-               </a>`
-          }
-          <a href="${blobUrl}" download="${x(title)}.pdf" class="btn bs"
-             style="color:#eee;border-color:#888">
-            Download PDF
-          </a>
-        </div>
-
-      </div>
-    </div>`;
-    icons();
-
-    // Check if iframe loaded successfully after 5 seconds
-    // Mobile browsers may silently fail — show fallback if so
-    setTimeout(()=>{
-      const iframe   = document.getElementById('book-iframe');
-      const fallback = document.getElementById('reader-fallback');
-      if(!iframe || !fallback) return;
-      try{
-        // clientHeight < 20 means iframe rendered nothing visible
-        if(iframe.clientHeight < 20){
-          iframe.style.display='none';
-          fallback.style.display='flex';
-        }
-      } catch(e){
-        iframe.style.display='none';
-        fallback.style.display='flex';
-      }
-    }, 5000);
-
-    if(!isExternal) setTimeout(()=>{ try{URL.revokeObjectURL(blobUrl);}catch{} }, 600000);
-    return;
-  }
-
-  // ══════════════════════════════════════════════════════════════════
-  // DESKTOP PATH — full-screen iframe reader
-  // ══════════════════════════════════════════════════════════════════
-  if(isPdf){
-    g('mr').innerHTML=`<div class="moverlay" style="padding:0;align-items:stretch;background:rgba(0,0,0,.85)" onclick="ovClick(event)">
-      <div class="modal" style="max-width:100%;width:100%;height:100dvh;border-radius:0;display:flex;flex-direction:column;background:#1e1e1e" onclick="event.stopPropagation()">
-        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#2a2a2a;flex-shrink:0;min-height:48px;overflow:hidden">
-          <div style="flex:1;min-width:0">
-            <div style="font-size:.88rem;font-weight:600;color:#f0f0f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x(title)}</div>
-            <div style="font-size:.7rem;color:#888;margin-top:1px">Scroll to read</div>
-          </div>
-          <a href="${blobUrl}" target="_blank" rel="noopener" class="btn sm"
-             style="background:#3a3a3a;color:#ccc;border:1px solid #555;flex-shrink:0;font-size:.75rem">
-            <i data-lucide="external-link" size="13"></i> New tab
-          </a>
-          <a href="${blobUrl}" download="${x(title)}.pdf" class="btn sm"
-             style="background:#3a3a3a;color:#ccc;border:1px solid #555;flex-shrink:0;font-size:.75rem">
-            <i data-lucide="download" size="13"></i>
-          </a>
-          <button onclick="closeModal()" class="btn sm"
-            style="background:#3a3a3a;color:#ccc;border:1px solid #555;flex-shrink:0;min-width:32px">
-            <i data-lucide="x" size="16"></i>
-          </button>
-        </div>
-        <iframe id="book-iframe" src="${blobUrl}"
-          style="flex:1;border:none;width:100%;background:#525659"
-          title="${x(title)}" allowfullscreen>
-        </iframe>
-        <div id="reader-fallback" style="display:none;flex:1;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:#525659;color:#eee;padding:2rem;text-align:center">
-          <div style="font-size:2rem">📄</div>
-          <p style="font-size:.9rem;max-width:300px">PDF cannot display inline. Use the buttons above.</p>
-          <a href="${blobUrl}" target="_blank" rel="noopener" class="btn bp lg">Open in New Tab</a>
-          <a href="${blobUrl}" download="${x(title)}.pdf" class="btn bs">Download</a>
-        </div>
-      </div>
-    </div>`;
-    icons();
-
-    setTimeout(()=>{
-      const iframe = document.getElementById('book-iframe');
-      const fb = document.getElementById('reader-fallback');
-      if(!iframe||!fb) return;
-      try{
-        if(!iframe.contentWindow || iframe.clientHeight < 10){
-          iframe.style.display='none'; fb.style.display='flex';
-        }
-      } catch(e){ iframe.style.display='none'; fb.style.display='flex'; }
-    }, 4000);
-
-    if(!isExternal) setTimeout(()=>{ try{URL.revokeObjectURL(blobUrl);}catch{} }, 600000);
-
-  } else {
-    // ePub / Word / other — open in new tab
-    closeModal();
-    window.open(blobUrl, '_blank', 'noopener');
-    toast('Opening in new tab…','ok');
+      toast('Opened "'+x(title)+'" in a new tab.','ok');
+      /* Revoke after 10 min to free memory */
+      setTimeout(()=>{ try{URL.revokeObjectURL(url);}catch{} }, 600000);
+    } catch(e){
+      toast('Failed to open file: '+e.message,'er');
+    }
   }
 }
 
