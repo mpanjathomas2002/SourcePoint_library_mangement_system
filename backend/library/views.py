@@ -355,13 +355,10 @@ class ServeCoverImageView(APIView):
 class ServeBookFileView(APIView):
     """
     GET /api/v1/library/books/<book_id>/read/
-
-    Serves the book file through Django — proxies from Supabase or local disk.
-    Streaming through Django avoids ALL Supabase bucket permission issues.
-
-    Access:
-      - Admins/superadmins: always
-      - Users: must have active borrowing
+    Returns the direct file URL for the client to open.
+    For Supabase files: returns the public URL directly (no proxy needed).
+    For local files: streams bytes so the client can create a blob URL.
+    Access: admins always, users need active borrowing.
     """
     permission_classes = [IsAuthenticated]
 
@@ -374,40 +371,34 @@ class ServeBookFileView(APIView):
         # Access check
         is_admin = request.user.role in ('admin', 'superadmin')
         if not is_admin:
-            if not Borrowing.objects.filter(user=request.user, book=book, status='active').exists():
+            if not Borrowing.objects.filter(
+                user=request.user, book=book, status='active'
+            ).exists():
                 return Response({'error': 'Borrow this book first to read it.'}, status=403)
 
-        # ── Supabase file — proxy through Django ──────────────────
+        # ── Supabase file — build public URL and return directly ──────
         if book.file_url and book.file_url.startswith('supabase://'):
             path_in_bucket = book.file_url[len('supabase://'):]
-            file_bytes, mime = _stream_supabase_file(path_in_bucket)
-            if file_bytes:
-                filename = os.path.basename(path_in_bucket)
-                from django.http import HttpResponse
-                response = HttpResponse(file_bytes, content_type=mime or 'application/pdf')
-                response['Content-Disposition'] = f'inline; filename="{filename}"'
-                response['Content-Length'] = len(file_bytes)
-                response['X-Frame-Options'] = 'SAMEORIGIN'
-                return response
-            return Response({'error': 'Could not load file from storage.'}, status=500)
+            supabase_base = getattr(settings, 'SUPABASE_URL', '').rstrip('/')
+            bucket = getattr(settings, 'SUPABASE_STORAGE_BUCKET', 'sourcepoint-books')
+            public_url = f"{supabase_base}/storage/v1/object/public/{bucket}/{path_in_bucket}"
+            return Response({
+                'source': 'supabase',
+                'url': public_url,
+                'file_type': book.file_type or 'pdf',
+                'title': book.title,
+            })
 
-        # ── Legacy http URL — proxy through Django ────────────────
+        # ── Legacy http/https URL — return directly ───────────────────
         if book.file_url and book.file_url.startswith('http'):
-            try:
-                r = http_requests.get(book.file_url, timeout=30, stream=True)
-                if r.status_code == 200:
-                    mime = r.headers.get('content-type', 'application/pdf')
-                    filename = book.slug + '.' + (book.file_type or 'pdf')
-                    from django.http import HttpResponse
-                    response = HttpResponse(r.content, content_type=mime)
-                    response['Content-Disposition'] = f'inline; filename="{filename}"'
-                    response['X-Frame-Options'] = 'SAMEORIGIN'
-                    return response
-            except Exception as e:
-                logger.warning(f"HTTP file proxy failed: {e}")
-            return Response({'error': 'Could not fetch remote file.'}, status=500)
+            return Response({
+                'source': 'external',
+                'url': book.file_url,
+                'file_type': book.file_type or 'pdf',
+                'title': book.title,
+            })
 
-        # ── Local file — stream from disk ─────────────────────────
+        # ── Local file — stream bytes so frontend makes a blob URL ────
         if book.book_file:
             try:
                 local_path = book.book_file.path
@@ -420,7 +411,8 @@ class ServeBookFileView(APIView):
                     with open(path, 'rb') as f:
                         while True:
                             data = f.read(chunk)
-                            if not data: break
+                            if not data:
+                                break
                             yield data
 
                 response = StreamingHttpResponse(stream(local_path), content_type=mime)
@@ -433,144 +425,3 @@ class ServeBookFileView(APIView):
                 return Response({'error': str(e)}, status=500)
 
         return Response({'error': 'No file attached to this book.'}, status=404)
-
-
-# =============================================================
-# BORROWING VIEWS
-# =============================================================
-
-class BorrowBookView(generics.CreateAPIView):
-    serializer_class = BorrowingSerializer
-    permission_classes = [IsAuthenticated]
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        borrowing = serializer.save()
-        logger.info(f"Borrowed: '{borrowing.book.title}' by {request.user.email}")
-        return Response({
-            'message': f'"{borrowing.book.title}" added to your library!',
-            'borrowing': BorrowingSerializer(borrowing, context={'request': request}).data,
-        }, status=status.HTTP_201_CREATED)
-
-
-class ReturnBookView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, borrowing_id):
-        try:
-            borrowing = Borrowing.objects.get(id=borrowing_id, user=request.user, status='active')
-            borrowing.return_book()
-            return Response({'message': f'"{borrowing.book.title}" returned.'})
-        except Borrowing.DoesNotExist:
-            return Response({'error': 'Borrowing not found or already returned.'}, status=404)
-
-
-class UserBorrowingsView(generics.ListAPIView):
-    serializer_class = BorrowingSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        qs = self.request.user.borrowings.select_related('book').prefetch_related('book__categories')
-        s = self.request.query_params.get('status')
-        if s:
-            qs = qs.filter(status=s)
-        return qs.order_by('-borrowed_at')
-
-    def get_serializer_context(self):
-        return {**super().get_serializer_context(), 'request': self.request}
-
-
-class AllBorrowingsView(generics.ListAPIView):
-    serializer_class = BorrowingSerializer
-    permission_classes = [IsAuthenticated, IsAdmin]
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['user__email', 'book__title']
-
-    def get_queryset(self):
-        qs = Borrowing.objects.select_related('user', 'book').prefetch_related('book__categories')
-        s = self.request.query_params.get('status')
-        if s:
-            qs = qs.filter(status=s)
-        return qs.order_by('-borrowed_at')
-
-    def get_serializer_context(self):
-        return {**super().get_serializer_context(), 'request': self.request}
-
-
-# =============================================================
-# RATINGS
-# =============================================================
-
-class RateBookView(generics.CreateAPIView):
-    serializer_class = RatingSerializer
-    permission_classes = [IsAuthenticated]
-
-    def create(self, request, book_id):
-        try:
-            book = Book.objects.get(id=book_id)
-        except Book.DoesNotExist:
-            return Response({'error': 'Book not found.'}, status=404)
-        data = {**request.data, 'book': book_id}
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        rating = serializer.save()
-        return Response({'message': 'Rated!', 'rating': RatingSerializer(rating).data,
-                         'new_average': book.average_rating}, status=201)
-
-
-# =============================================================
-# SETTINGS
-# =============================================================
-
-class BorrowSettingsView(APIView):
-    def get_permissions(self):
-        return [IsAuthenticated()] if self.request.method == 'GET' else [IsAuthenticated(), IsAdmin()]
-
-    def get(self, request):
-        s, _ = BorrowSetting.objects.get_or_create(pk=1)
-        return Response(BorrowSettingSerializer(s).data)
-
-    def put(self, request):
-        s, _ = BorrowSetting.objects.get_or_create(pk=1)
-        serializer = BorrowSettingSerializer(s, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save(updated_by=request.user)
-            return Response({'message': 'Settings updated.', 'settings': serializer.data})
-        return Response(serializer.errors, status=400)
-
-
-# =============================================================
-# ADMIN STATS & MOCK DATA
-# =============================================================
-
-class AdminStatsView(APIView):
-    permission_classes = [IsAuthenticated, IsAdmin]
-
-    def get(self, request):
-        return Response({
-            'total_books': Book.objects.filter(is_available=True).count(),
-            'total_users': User.objects.filter(role='user', status='active').count(),
-            'active_borrowings': Borrowing.objects.filter(status='active').count(),
-            'overdue_borrowings': Borrowing.objects.filter(status='active', due_date__lt=timezone.now()).count(),
-            'total_categories': Category.objects.count(),
-            'total_ratings': Rating.objects.count(),
-            'suspended_users': User.objects.filter(status='suspended').count(),
-            'new_users_this_month': User.objects.filter(
-                date_joined__month=timezone.now().month,
-                date_joined__year=timezone.now().year, role='user'
-            ).count(),
-        })
-
-
-class ClearMockDataView(APIView):
-    permission_classes = [IsAuthenticated, IsAdmin]
-
-    def delete(self, request):
-        r = Rating.objects.filter(is_mock_data=True).delete()[0]
-        b = Borrowing.objects.filter(is_mock_data=True).delete()[0]
-        bk = Book.objects.filter(is_mock_data=True).delete()[0]
-        c = Category.objects.filter(is_mock_data=True).delete()[0]
-        total = r + b + bk + c
-        return Response({'message': f'Removed {total} mock records.',
-                         'deleted': {'books': bk, 'categories': c, 'borrowings': b, 'ratings': r, 'total': total}})
