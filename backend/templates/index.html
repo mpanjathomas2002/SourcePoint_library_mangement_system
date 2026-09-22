@@ -3,22 +3,22 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0"/>
-<title>SourcePoint — Digital Library Management System</title>
+<title>SourcePoint — Digital Knowledge Management System</title>
 <!-- SEO: Update the domain below before deploying -->
-<meta name="description" content="SourcePoint — a free digital library. Browse, borrow, and discover books and study materials powered by AI."/>
-<meta name="keywords" content="digital library,book borrowing,library management,ebooks,study materials,AI library assistant"/>
-<meta name="author" content="SourcePoint Library"/>
+<meta name="description" content="SourcePoint — a free digital knowledge management system. Browse, borrow, and discover books and study materials powered by AI."/>
+<meta name="keywords" content="digital knowledge management system,book borrowing,knowledge management,ebooks,study materials,AI knowledge management assistant"/>
+<meta name="author" content="SourcePoint Knowledge Management System"/>
 <meta name="robots" content="index,follow"/>
 <link rel="canonical" href="https://yourdomain.com/"/>
 <meta property="og:type" content="website"/>
-<meta property="og:title" content="SourcePoint — Your Digital Library"/>
+<meta property="og:title" content="SourcePoint — Your Digital Knowledge Management System"/>
 <meta property="og:description" content="Borrow books, get AI-powered recommendations, manage your reading. Free for everyone."/>
 <meta property="og:url" content="https://yourdomain.com/"/>
 <meta property="og:site_name" content="SourcePoint"/>
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="SourcePoint — Digital Library"/>
+<meta name="twitter:title" content="SourcePoint — Digital Knowledge Management System"/>
 <meta name="twitter:description" content="Borrow books and get AI-powered reading recommendations."/>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Library","name":"SourcePoint Digital Library","description":"A free digital library management system with AI-powered book discovery.","url":"https://yourdomain.com"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Library","name":"SourcePoint Digital Knowledge Management System","description":"A free digital knowledge management system with AI-powered book discovery.","url":"https://yourdomain.com"}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet"/>
@@ -410,7 +410,7 @@ td:last-child{max-width:none;overflow:visible}
 
 <div id="loading">
   <div class="ll">Source<span>Point</span></div>
-  <div class="lt">Digital Library</div>
+  <div class="lt">Digital Knowledge Management System</div>
   <div class="lsp"></div>
   <script>
     /* Hard kill: remove loading screen after 1.5s no matter what.
@@ -439,7 +439,7 @@ td:last-child{max-width:none;overflow:visible}
 <div id="auth" class="hidden">
   <div class="ahero" aria-hidden="true">
     <div class="ahl">Source<span>Point</span></div>
-    <p>Your intelligent digital library. Discover, borrow, and explore books and study materials powered by AI.</p>
+    <p>Your intelligent digital knowledge management system. Discover, borrow, and explore books and study materials powered by AI.</p>
     <div>
       <div class="ahf"><i data-lucide="book-open" size="16"></i> Borrow books instantly</div>
       <div class="ahf"><i data-lucide="sparkles" size="16"></i> AI-powered summaries &amp; recommendations</div>
@@ -629,8 +629,8 @@ function pc(html){g('pc').innerHTML=html;icons();addTableScrollHints();}
 // ── SIDEBAR ───────────────────────────────────────────────────
 const NAV={
   user:[{id:'catalog',ic:'library-big',lb:'Browse Catalog'},{id:'mybooks',ic:'book-marked',lb:'My Bookshelf'},{id:'ai',ic:'sparkles',lb:'AI Assistant'},{id:'profile',ic:'user',lb:'My Profile'}],
-  admin:[{s:'Library'},{id:'dashboard',ic:'layout-dashboard',lb:'Dashboard'},{id:'catalog',ic:'library-big',lb:'Browse Catalog'},{id:'books',ic:'book',lb:'Manage Books'},{id:'categories',ic:'tags',lb:'Categories'},{s:'People'},{id:'users',ic:'users',lb:'Users'},{id:'borrowings',ic:'clipboard-list',lb:'Borrowings'},{s:'Config'},{id:'settings',ic:'settings',lb:'Settings'},{id:'ai',ic:'sparkles',lb:'AI Assistant'},{id:'profile',ic:'user',lb:'My Profile'}],
-  superadmin:[{s:'Library'},{id:'dashboard',ic:'layout-dashboard',lb:'Dashboard'},{id:'catalog',ic:'library-big',lb:'Browse Catalog'},{id:'books',ic:'book',lb:'Manage Books'},{id:'categories',ic:'tags',lb:'Categories'},{s:'People'},{id:'users',ic:'users',lb:'All Users'},{id:'admins',ic:'shield',lb:'Administrators'},{id:'borrowings',ic:'clipboard-list',lb:'Borrowings'},{s:'Config'},{id:'settings',ic:'settings',lb:'Settings'},{id:'ai',ic:'sparkles',lb:'AI Assistant'},{id:'profile',ic:'user',lb:'My Profile'}]
+  admin:[{s:'Knowledge Management System'},{id:'dashboard',ic:'layout-dashboard',lb:'Dashboard'},{id:'catalog',ic:'library-big',lb:'Browse Catalog'},{id:'books',ic:'book',lb:'Manage Books'},{id:'categories',ic:'tags',lb:'Categories'},{s:'People'},{id:'users',ic:'users',lb:'Users'},{id:'borrowings',ic:'clipboard-list',lb:'Borrowings'},{s:'Config'},{id:'settings',ic:'settings',lb:'Settings'},{id:'ai',ic:'sparkles',lb:'AI Assistant'},{id:'profile',ic:'user',lb:'My Profile'}],
+  superadmin:[{s:'Knowledge Management System'},{id:'dashboard',ic:'layout-dashboard',lb:'Dashboard'},{id:'catalog',ic:'library-big',lb:'Browse Catalog'},{id:'books',ic:'book',lb:'Manage Books'},{id:'categories',ic:'tags',lb:'Categories'},{s:'People'},{id:'users',ic:'users',lb:'All Users'},{id:'admins',ic:'shield',lb:'Administrators'},{id:'borrowings',ic:'clipboard-list',lb:'Borrowings'},{s:'Config'},{id:'settings',ic:'settings',lb:'Settings'},{id:'ai',ic:'sparkles',lb:'AI Assistant'},{id:'profile',ic:'user',lb:'My Profile'}]
 };
 function renderNav(){
   const items=NAV[S.user?.role]||NAV.user;
@@ -731,7 +731,7 @@ function mkCtrl(b,ib,mx){
 
   if(ib){
     return (hasFile ? '<button class="btn bp sm" onclick="readBook(window._bk.id,window._bk.title)"><i data-lucide="book-open" size="13"></i> Read</button>' : '')
-      + '<span class="badge bg-ok" style="order:-1">✓ In library</span>'
+      + '<span class="badge bg-ok" style="order:-1">✓ In Knowledge Management System</span>'
       + '<button class="btn bs sm" onclick="retBk(window._bk.id,window._bk.title)">Return</button>'
       + '<button class="btn ba sm" onclick="aiSum(window._bk.id,window._bk.title)"><i data-lucide="sparkles" size="13"></i> AI</button>'
       ;
@@ -747,7 +747,7 @@ function mkCtrl(b,ib,mx){
       + '<div style="font-size:.8rem;color:var(--tx3);margin-bottom:6px">Borrow for: <strong id="dlbl">14 days</strong> (max '+mx+'d)</div>'
       + '<input type="range" min="1" max="'+mx+'" value="14" id="dslide" style="width:100%;margin-bottom:10px" oninput="updDlbl(this.value)"/>'
       + '<div style="display:flex;flex-wrap:wrap;gap:8px">'
-      + '<button class="btn bp" onclick="borBk(window._bk.id,window._bk.title)"><i data-lucide="book-plus" size="16"></i> Add to My Library</button>'
+      + '<button class="btn bp" onclick="borBk(window._bk.id,window._bk.title)"><i data-lucide="book-plus" size="16"></i> Add to My Knowledge Management System</button>'
       + '<button class="btn bs sm" onclick="aiSum(window._bk.id,window._bk.title)"><i data-lucide="sparkles" size="13"></i> AI</button>'
       + '</div></div>';
   }
@@ -794,7 +794,7 @@ async function borBk(bid,title){
   const r=await api.post('/library/borrow/',{book_id:bid,requested_days:days});
   if(!r){toast('Network error.','er');return;}
   const d=await r.json();
-  if(r.ok){toast(`"${title}" added to your library!`,'ok');closeModal();S._cb=null;await loadBooks();}
+  if(r.ok){toast(`"${title}" added to your knowledge management system!`,'ok');closeModal();S._cb=null;await loadBooks();}
   else toast(d.book_id?.[0]||d.detail||d.non_field_errors?.[0]||'Could not borrow book.','er');
 }
 async function retBk(bid,title){
@@ -817,10 +817,10 @@ async function pgMyBooks(){
   const[act,all]=await Promise.all([api.json('/library/my-books/?status=active'),api.json('/library/my-books/')]);
   const active=act||[];const ret=(all||[]).filter(b=>b.status==='returned');
   pc(`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px">
-    <div><h2 style="font-size:1.4rem;color:var(--forest)">My Library</h2><p style="color:var(--text3);font-size:.85rem">${active.length} book${active.length!==1?'s':''} borrowed</p></div>
+    <div><h2 style="font-size:1.4rem;color:var(--forest)">My Knowledge Management System</h2><p style="color:var(--text3);font-size:.85rem">${active.length} book${active.length!==1?'s':''} borrowed</p></div>
     <button class="btn bs" onclick="go('catalog')"><i data-lucide="plus" size="16"></i> Browse More</button>
   </div>
-  ${active.length===0?`<div class="empty"><div class="eico">📚</div><h3>Your library is empty</h3><p>Browse the catalog to borrow your first book.</p><button class="btn bp" style="margin-top:1rem" onclick="go('catalog')">Browse Books</button></div>`
+  ${active.length===0?`<div class="empty"><div class="eico">📚</div><h3>Your knowledge management system is empty</h3><p>Browse the catalog to borrow your first book.</p><button class="btn bp" style="margin-top:1rem" onclick="go('catalog')">Browse Books</button></div>`
     :`<div class="shlist">${active.map(shCard).join('')}</div>`}
   ${ret.length?`<div style="margin-top:2rem"><h3 style="font-size:1rem;color:var(--text2);margin-bottom:1rem">Reading History</h3>
     <div class="tw"><table><thead><tr><th>Book</th><th>Borrowed</th><th>Returned</th><th>Action</th></tr></thead>
@@ -933,7 +933,7 @@ async function pgDash(){
   // Load stats in background
   const st = await api.json('/library/admin/stats/') || {};
 
-  pc(`<div style="margin-bottom:1.5rem"><h2 style="font-size:1.4rem;color:var(--forest)">Good ${gr()}, ${x(S.user.first_name||'Admin')}</h2><p style="color:var(--text3);font-size:.87rem">Library overview for today.</p></div>
+  pc(`<div style="margin-bottom:1.5rem"><h2 style="font-size:1.4rem;color:var(--forest)">Good ${gr()}, ${x(S.user.first_name||'Admin')}</h2><p style="color:var(--text3);font-size:.87rem">Knowledge management system overview for today.</p></div>
   <div class="sgrid">
     ${sc('g','library-big',st.total_books??'—','Books Available')}
     ${sc('b','users',st.total_users??'—','Active Members')}
@@ -1053,7 +1053,7 @@ async function subAddBook(){
     const res=await fetch(API+'/library/books/create/',{method:'POST',headers:h,body:fd});
     const d=await res.json();
     if(res.ok){
-      toast(`"${t}" added to the library!`,'ok');
+      toast(`"${t}" added to the knowledge management system!`,'ok');
       closeModal();S._bc=null;await loadBooks('',true);pgBooks();
     } else {
       toast(d.error||d.title?.[0]||d.detail||'Failed to save book.','er');
@@ -1219,7 +1219,7 @@ function showAddAdm(){
         <div class="ig"><label>First Name</label><input type="text" id="amf" placeholder="Alice"/></div>
         <div class="ig"><label>Last Name</label><input type="text" id="aml" placeholder="Nakamura"/></div>
       </div>
-      <div class="ig"><label>Email Address *</label><input type="email" id="ame" placeholder="admin@yourlibrary.com"/></div>
+      <div class="ig"><label>Email Address *</label><input type="email" id="ame" placeholder="admin@yourknowledgemanagementsystem.com"/></div>
       <div class="ig">
         <label>Password *</label>
         <input type="password" id="amp" placeholder="Min. 8 characters"/>
@@ -1308,7 +1308,7 @@ function showModal(html,lg=false){
    to re-authenticate (which it cannot do by itself).
 ═══════════════════════════════════════════════════════════════ */
 async function readBook(bookId, title){
-  // Show loading modal immediately so user knows something is happening
+  // Show loading modal immediately
   g('mr').innerHTML=`<div class="moverlay" style="padding:0;align-items:stretch">
     <div class="modal" style="max-width:100%;width:100%;height:100dvh;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem">
       <div class="lsp" style="margin:0 auto;border-color:rgba(26,46,26,.15);border-top-color:var(--forest)"></div>
@@ -1317,57 +1317,38 @@ async function readBook(bookId, title){
     </div>
   </div>`;
 
-  // Step 1 — ask backend for the file (JWT auth header added automatically)
+  // Detect real mobile device (not just resized browser window)
+  // Checks touch support AND small screen AND mobile user-agent
+  const isMobile = (
+    ('ontouchstart' in window || navigator.maxTouchPoints > 1) &&
+    window.innerWidth <= 900 &&
+    /Android|iPhone|iPad|iPod|Mobile|webOS/i.test(navigator.userAgent)
+  );
+
   const resp = await api.r('/library/books/'+bookId+'/read/');
 
-  if(!resp){
-    closeModal();
-    toast('Could not connect to server.','er');
-    return;
-  }
-  if(resp.status===403){
-    closeModal();
-    toast('Borrow this book first to read it.','er');
-    return;
-  }
-  if(resp.status===404){
-    closeModal();
-    toast('No digital file attached to this book.','er');
-    return;
-  }
-  if(!resp.ok){
-    closeModal();
-    toast('Could not load book file.','er');
-    return;
-  }
+  if(!resp){ closeModal(); toast('Could not connect to server.','er'); return; }
+  if(resp.status===403){ closeModal(); toast('Borrow this book first to read it.','er'); return; }
+  if(resp.status===404){ closeModal(); toast('No digital file attached to this book.','er'); return; }
+  if(!resp.ok){ closeModal(); toast('Could not load book file.','er'); return; }
 
   const ct = resp.headers.get('content-type') || '';
-
   let blobUrl = null;
   let fileType = 'pdf';
   let isExternal = false;
 
   if(ct.includes('application/json')){
-    // Backend returned JSON with an external/Supabase URL
     const d = await resp.json();
     if(d.error){ closeModal(); toast(d.error,'er'); return; }
-    blobUrl = d.url;
-    fileType = d.file_type || 'pdf';
-    isExternal = true;
+    blobUrl = d.url; fileType = d.file_type || 'pdf'; isExternal = true;
   } else {
-    // Backend streamed raw file bytes — wrap in a Blob URL
-    // This is the local-file path: the iframe gets a blob:// URL
-    // which the browser renders natively without re-authenticating
     try {
       const bytes = await resp.arrayBuffer();
-      const mime  = ct || 'application/pdf';
-      const blob  = new Blob([bytes], {type: mime});
+      const blob = new Blob([bytes], {type: ct || 'application/pdf'});
       blobUrl = URL.createObjectURL(blob);
       fileType = ct.includes('pdf') ? 'pdf' : 'other';
     } catch(e){
-      closeModal();
-      toast('Failed to load file bytes: '+e.message,'er');
-      return;
+      closeModal(); toast('Failed to load file: '+e.message,'er'); return;
     }
   }
 
@@ -1375,17 +1356,32 @@ async function readBook(bookId, title){
 
   const isPdf = fileType==='pdf' || blobUrl.toLowerCase().includes('.pdf');
 
+  // ── MOBILE: open in new tab — iframes don't work on real phones ──
+  if(isMobile){
+    closeModal();
+    // On iOS Safari and Android Chrome, the blob URL opens the native PDF viewer
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    // On iOS, setting download attribute prevents opening — don't set it
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast('Opening PDF in your device viewer…','ok');
+    // Revoke after short delay to allow the browser to start the download
+    if(!isExternal) setTimeout(()=>{ try{URL.revokeObjectURL(blobUrl);}catch{} }, 10000);
+    return;
+  }
+
+  // ── DESKTOP: full-screen iframe reader ───────────────────────────
   if(isPdf){
-    // Render PDF full-screen inside a sticky modal
-    // "Open in tab" and "Download" buttons always work as fallbacks
     g('mr').innerHTML=`<div class="moverlay" style="padding:0;align-items:stretch;background:rgba(0,0,0,.85)" onclick="ovClick(event)">
       <div class="modal" style="max-width:100%;width:100%;height:100dvh;border-radius:0;display:flex;flex-direction:column;background:#1e1e1e" onclick="event.stopPropagation()">
-
-        <!-- Reader top bar -->
         <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#2a2a2a;flex-shrink:0;min-height:48px;overflow:hidden">
           <div style="flex:1;min-width:0">
             <div style="font-size:.88rem;font-weight:600;color:#f0f0f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x(title)}</div>
-            <div style="font-size:.7rem;color:#888;margin-top:1px">Scroll to read • Pinch to zoom on mobile</div>
+            <div style="font-size:.7rem;color:#888;margin-top:1px">Scroll to read</div>
           </div>
           <a href="${blobUrl}" target="_blank" rel="noopener" class="btn sm"
              style="background:#3a3a3a;color:#ccc;border:1px solid #555;flex-shrink:0;font-size:.75rem">
@@ -1400,50 +1396,36 @@ async function readBook(bookId, title){
             <i data-lucide="x" size="16"></i>
           </button>
         </div>
-
-        <!-- PDF iframe — uses blob URL or direct Supabase URL -->
-        <iframe id="book-iframe"
-          src="${blobUrl}"
+        <iframe id="book-iframe" src="${blobUrl}"
           style="flex:1;border:none;width:100%;background:#525659"
-          title="${x(title)}"
-          allowfullscreen>
+          title="${x(title)}" allowfullscreen>
         </iframe>
-
-        <!-- Fallback shown if iframe fails (e.g. mobile browser blocks PDF in iframe) -->
         <div id="reader-fallback" style="display:none;flex:1;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:#525659;color:#eee;padding:2rem;text-align:center">
           <div style="font-size:2rem">📄</div>
-          <p style="font-size:.9rem;max-width:300px">Your browser cannot display this PDF inline.<br>Use one of the options below.</p>
-          <a href="${blobUrl}" target="_blank" rel="noopener" class="btn bp lg">Open PDF in New Tab</a>
-          <a href="${blobUrl}" download="${x(title)}.pdf" class="btn bs">Download PDF</a>
+          <p style="font-size:.9rem;max-width:300px">PDF cannot display inline.<br>Use the buttons above.</p>
+          <a href="${blobUrl}" target="_blank" rel="noopener" class="btn bp lg">Open in New Tab</a>
+          <a href="${blobUrl}" download="${x(title)}.pdf" class="btn bs">Download</a>
         </div>
       </div>
     </div>`;
     icons();
 
-    // If iframe fails to load after 4 seconds, show the fallback
+    // If iframe fails after 4s, show fallback buttons
     setTimeout(()=>{
       const iframe = document.getElementById('book-iframe');
       const fallback = document.getElementById('reader-fallback');
-      if(!iframe || !fallback) return;
-      try{
-        // If iframe contentWindow is null, it blocked the content
+      if(!iframe||!fallback) return;
+      try {
         if(!iframe.contentWindow || iframe.clientHeight < 10){
-          iframe.style.display='none';
-          fallback.style.display='flex';
+          iframe.style.display='none'; fallback.style.display='flex';
         }
-      } catch(e){
-        iframe.style.display='none';
-        fallback.style.display='flex';
-      }
+      } catch(e){ iframe.style.display='none'; fallback.style.display='flex'; }
     }, 4000);
 
-    // For blob URLs, revoke after 10 minutes to free memory
-    if(!isExternal){
-      setTimeout(()=>{ try{URL.revokeObjectURL(blobUrl);}catch{} }, 600000);
-    }
+    if(!isExternal) setTimeout(()=>{ try{URL.revokeObjectURL(blobUrl);}catch{} }, 600000);
 
   } else {
-    // Non-PDF file — open in new tab (ePub, Word, etc.)
+    // ePub etc — new tab
     closeModal();
     window.open(blobUrl, '_blank', 'noopener');
     toast('Opening in new tab…','ok');
